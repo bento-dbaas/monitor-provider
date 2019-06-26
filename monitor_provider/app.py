@@ -7,7 +7,6 @@ from flask_httpauth import HTTPBasicAuth
 from monitor_provider.providers import get_provider_to
 from monitor_provider.settings import APP_USERNAME, APP_PASSWORD
 
-
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 
@@ -27,12 +26,10 @@ def verify_password(username, password):
 )
 @auth.login_required
 def create_credential(provider_name, env):
-    print("create_credential", provider_name, env)
-    data = request.get_json()
+    data = json.loads(request.data or 'null')
     if not data:
         print("no data")
         return response_invalid_request("No data".format(data))
-    print("data:", data)
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
@@ -129,3 +126,86 @@ def response_ok(**kwargs):
 def _response(status, **kwargs):
     content = jsonify(**kwargs)
     return make_response(content, status)
+
+
+@app.route("/<string:provider_name>/<string:env>/host/new", methods=['POST'])
+@auth.login_required
+def register_host(provider_name, env):
+    data = json.loads(request.data or 'null')
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        host_id = provider.register_host(**data)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+
+    return response_created(success=True, id=host_id)
+
+@app.route(
+    "/<string:provider_name>/<string:env>/host/<string:host_name>",
+    methods=['GET']
+)
+@auth.login_required
+def get_host(provider_name, env, host_name):
+    if not host_name:
+        return response_invalid_request("invalid data")
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        host = provider.get_host(host_name)
+        return make_response(host.to_json)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/host/<int:host_id>",
+    methods=['DELETE']
+)
+@auth.login_required
+def delete_host(provider_name, env, host_id):
+    if not host_id:
+        return response_invalid_request("invalid data")
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        provider.delete_host(host_id)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+
+    return response_ok()
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/service/<string:service_name>",
+    methods=['GET']
+)
+@auth.login_required
+def get_service(provider_name, env, service_name):
+    if not service_name:
+        return response_invalid_request("invalid data")
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        service = provider.get_service(service_name)
+        return make_response(service.to_json)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+
+@app.route("/<string:provider_name>/<string:env>/service/new", methods=['POST'])
+@auth.login_required
+def register_service(provider_name, env):
+    data = json.loads(request.data or 'null')
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        service_id = provider.register_service(**data)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+
+    return response_created(success=True, id=service_id)
