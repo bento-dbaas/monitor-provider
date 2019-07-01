@@ -35,3 +35,7 @@ class ProviderDBMonitor(ProviderBase):
     def register_service(self, **kwargs):
         dbhandle = DbmonitorHandleModels(self.credential.database_endpoint)
         return dbhandle.register_service(self.credential, **kwargs)
+
+    def delete_service(self, service_id):
+        dbhandle = DbmonitorHandleModels(self.credential.database_endpoint)
+        dbhandle.delete_service(service_id)

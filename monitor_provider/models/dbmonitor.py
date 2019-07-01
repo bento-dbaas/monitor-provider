@@ -139,7 +139,6 @@ class DbmonitorHandleModels(object):
         organization_name = kwargs.get("organization_name", None)
         cloud_name = kwargs.get("cloud_name", None)
         service_name = kwargs.get("service_name", None)
-        print(service_name)
 
         if not(dns and ip and name and so_name and service_name):
             raise Exception(
@@ -179,6 +178,13 @@ class DbmonitorHandleModels(object):
             cloud_id=cloud_id
         )
         server.save()
+
+        servico_servidor = DbmonitorServicoServidores(
+            servico = service_id,
+            servidor = server.id
+        )
+        servico_servidor.save()
+
         return server.id
 
     def get_host(self, host_name):
@@ -188,6 +194,9 @@ class DbmonitorHandleModels(object):
         return host
 
     def delete_host(self, host_id):
+        DbmonitorServicoServidores.delete().where(
+            DbmonitorServicoServidores.servidor == host_id).execute()
+
         rows = DbmonitorServidor.delete().where(
             DbmonitorServidor.id == host_id).execute()
         if rows == 0:
@@ -227,3 +236,9 @@ class DbmonitorHandleModels(object):
         )
         service.save()
         return service.id
+
+    def delete_service(self, service_id):
+        rows = DbmonitorServico.delete().where(
+            DbmonitorServico.id == service_id).execute()
+        if rows == 0:
+            raise Exception("Service id {} not found".format(service_id))

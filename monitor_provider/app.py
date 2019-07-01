@@ -5,10 +5,16 @@ from traceback import print_exc
 from flask import Flask, request, jsonify, make_response
 from flask_httpauth import HTTPBasicAuth
 from monitor_provider.providers import get_provider_to
-from monitor_provider.settings import APP_USERNAME, APP_PASSWORD
+from monitor_provider.settings import (
+    APP_USERNAME,
+    APP_PASSWORD,
+    LOGGING_LEVEL)
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
+logging.basicConfig(
+    level=LOGGING_LEVEL,
+    format='%(asctime)s %(filename)s(%(lineno)d) %(levelname)s: %(message)s')
 
 @auth.verify_password
 def verify_password(username, password):
@@ -28,7 +34,7 @@ def verify_password(username, password):
 def create_credential(provider_name, env):
     data = json.loads(request.data or 'null')
     if not data:
-        print("no data")
+        logging.error("No data")
         return response_invalid_request("No data".format(data))
     try:
         provider_cls = get_provider_to(provider_name)
@@ -196,6 +202,7 @@ def get_service(provider_name, env, service_name):
         print_exc()
         return response_invalid_request(str(e))
 
+
 @app.route("/<string:provider_name>/<string:env>/service/new", methods=['POST'])
 @auth.login_required
 def register_service(provider_name, env):
@@ -209,3 +216,22 @@ def register_service(provider_name, env):
         return response_invalid_request(str(e))
 
     return response_created(success=True, id=service_id)
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/service/<int:service_id>",
+    methods=['DELETE']
+)
+@auth.login_required
+def delete_service(provider_name, env, service_id):
+    if not service_id:
+        return response_invalid_request("invalid data")
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        provider.delete_service(service_id)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+
+    return response_ok()
