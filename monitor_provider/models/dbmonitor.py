@@ -128,7 +128,7 @@ class DbmonitorHandleModels(object):
             org = DbmonitorOrganizacao.create(nome = name)
         return org.id
 
-    def register_host(self, credential, **kwargs):
+    def create_host(self, credential, **kwargs):
         dns = kwargs.get("dns", None)
         ip = kwargs.get("ip", None)
         name = kwargs.get("name", None)
@@ -139,11 +139,6 @@ class DbmonitorHandleModels(object):
         organization_name = kwargs.get("organization_name", None)
         cloud_name = kwargs.get("cloud_name", None)
         service_name = kwargs.get("service_name", None)
-
-        if not(dns and ip and name and so_name and service_name):
-            raise Exception(
-            "These fields are mandatory: dns, ip, name, so_name, service_name"
-            )
 
         if not organization_name:
             organization_name = credential.default_organization_name
@@ -188,35 +183,36 @@ class DbmonitorHandleModels(object):
         return server.id
 
     def get_host(self, host_name):
-        host = DbmonitorServidor.select(
-            DbmonitorServidor.id, DbmonitorServidor.nome).where(
-            DbmonitorServidor.nome == host_name).get()
+        try:
+            host = DbmonitorServidor.select(
+                DbmonitorServidor.id, DbmonitorServidor.nome).where(
+                DbmonitorServidor.nome == host_name).get()
+        except DbmonitorServidor.DoesNotExist:
+            raise Exception("Host {} does not exist".format(host_name))
         return host
 
-    def delete_host(self, host_id):
+    def delete_host(self, host_name):
+        host = self.get_host(host_name)
+
         DbmonitorServicoServidores.delete().where(
-            DbmonitorServicoServidores.servidor == host_id).execute()
+            DbmonitorServicoServidores.servidor == host.id).execute()
 
         rows = DbmonitorServidor.delete().where(
-            DbmonitorServidor.id == host_id).execute()
-        if rows == 0:
-            raise Exception("Host id {} not found".format(host_id))
+            DbmonitorServidor.nome == host_name).execute()
 
     def get_service(self, service_name):
-        service = DbmonitorServico.select(
-            DbmonitorServico.id, DbmonitorServico.descricao).where(
-            DbmonitorServico.descricao == service_name).get()
+        try:
+            service = DbmonitorServico.select(
+                DbmonitorServico.id, DbmonitorServico.descricao).where(
+                DbmonitorServico.descricao == service_name).get()
+        except DbmonitorServico.DoesNotExist:
+            raise Exception("Service {} does not exist".format(host_name))
         return service
 
-    def register_service(self, credential, **kwargs):
+    def create_service(self, credential, **kwargs):
         name = kwargs.get("name", None)
         url = kwargs.get("url", None)
         environment = kwargs.get("environment", None)
-
-        if not(name):
-            raise Exception(
-                "These fields are mandatory: name"
-            )
 
         if not environment:
             environment = credential.default_environment

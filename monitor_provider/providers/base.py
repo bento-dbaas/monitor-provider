@@ -37,3 +37,9 @@ class ProviderBase(object):
 
     def get_credential_add(self):
         raise NotImplementedError
+
+    def check_mandatory_fields(self, mandatory_fields, **data):
+        for mandatory_field in mandatory_fields:
+            item = data.get(mandatory_field, None)
+            if not item:
+                raise Exception("{} is mandatory".format(mandatory_field))

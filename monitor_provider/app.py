@@ -28,8 +28,8 @@ def verify_password(username, password):
 
 
 @app.route(
-    "/<string:provider_name>/<string:env>/credential/new", methods=['POST']
-)
+    "/<string:provider_name>/<string:env>/credential/new",
+    methods=['POST'])
 @auth.login_required
 def create_credential(provider_name, env):
     data = json.loads(request.data or 'null')
@@ -50,8 +50,8 @@ def create_credential(provider_name, env):
 
 
 @app.route(
-    "/<string:provider_name>/credentials", methods=['GET']
-)
+    "/<string:provider_name>/credentials",
+    methods=['GET'])
 @auth.login_required
 def get_all_credential(provider_name):
     try:
@@ -69,8 +69,8 @@ def get_all_credential(provider_name):
 
 
 @app.route(
-    "/<string:provider_name>/<string:env>/credential", methods=['GET']
-)
+    "/<string:provider_name>/<string:env>/credential",
+    methods=['GET'])
 @auth.login_required
 def get_credential(provider_name, env):
     try:
@@ -93,8 +93,8 @@ def update_credential(provider_name, env):
 
 
 @app.route(
-    "/<string:provider_name>/<string:env>/credential", methods=['DELETE']
-)
+    "/<string:provider_name>/<string:env>/credential",
+    methods=['DELETE'])
 @auth.login_required
 def destroy_credential(provider_name, env):
     try:
@@ -134,28 +134,11 @@ def _response(status, **kwargs):
     return make_response(content, status)
 
 
-@app.route("/<string:provider_name>/<string:env>/host/new", methods=['POST'])
-@auth.login_required
-def register_host(provider_name, env):
-    data = json.loads(request.data or 'null')
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        host_id = provider.register_host(**data)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-
-    return response_created(success=True, id=host_id)
-
 @app.route(
     "/<string:provider_name>/<string:env>/host/<string:host_name>",
-    methods=['GET']
-)
+    methods=['GET'])
 @auth.login_required
 def get_host(provider_name, env, host_name):
-    if not host_name:
-        return response_invalid_request("invalid data")
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
@@ -167,32 +150,41 @@ def get_host(provider_name, env, host_name):
 
 
 @app.route(
-    "/<string:provider_name>/<string:env>/host/<int:host_id>",
-    methods=['DELETE']
-)
+    "/<string:provider_name>/<string:env>/host/new",
+    methods=['POST'])
 @auth.login_required
-def delete_host(provider_name, env, host_id):
-    if not host_id:
-        return response_invalid_request("invalid data")
+def create_host(provider_name, env):
+    data = json.loads(request.data or 'null')
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
-        provider.delete_host(host_id)
+        host = provider.create_host(**data)
     except Exception as e:
         print_exc()
         return response_invalid_request(str(e))
+    return response_created(success=True, host=host)
 
+
+@app.route(
+    "/<string:provider_name>/<string:env>/host/<string:host_name>",
+    methods=['DELETE'])
+@auth.login_required
+def delete_host(provider_name, env, host_name):
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        provider.delete_host(host_name)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
     return response_ok()
 
 
 @app.route(
     "/<string:provider_name>/<string:env>/service/<string:service_name>",
-    methods=['GET']
-)
+    methods=['GET'])
 @auth.login_required
 def get_service(provider_name, env, service_name):
-    if not service_name:
-        return response_invalid_request("invalid data")
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
@@ -203,35 +195,31 @@ def get_service(provider_name, env, service_name):
         return response_invalid_request(str(e))
 
 
-@app.route("/<string:provider_name>/<string:env>/service/new", methods=['POST'])
+@app.route("/<string:provider_name>/<string:env>/service/new",
+    methods=['POST'])
 @auth.login_required
-def register_service(provider_name, env):
+def create_service(provider_name, env):
     data = json.loads(request.data or 'null')
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
-        service_id = provider.register_service(**data)
+        service = provider.create_service(**data)
     except Exception as e:
         print_exc()
         return response_invalid_request(str(e))
-
-    return response_created(success=True, id=service_id)
+    return response_created(success=True, service=service)
 
 
 @app.route(
-    "/<string:provider_name>/<string:env>/service/<int:service_id>",
-    methods=['DELETE']
-)
+    "/<string:provider_name>/<string:env>/service/<string:service_name>",
+    methods=['DELETE'])
 @auth.login_required
-def delete_service(provider_name, env, service_id):
-    if not service_id:
-        return response_invalid_request("invalid data")
+def delete_service(provider_name, env, service_name):
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
-        provider.delete_service(service_id)
+        provider.delete_service(service_name)
     except Exception as e:
         print_exc()
         return response_invalid_request(str(e))
-
     return response_ok()

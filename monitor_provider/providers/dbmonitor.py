@@ -16,25 +16,29 @@ class ProviderDBMonitor(ProviderBase):
     def get_credential_add(self):
         return CredentialAddDBMonitor
 
-    def register_host(self, **kwargs):
+    def create_host(self, **kwargs):
+        mandatory_fields = ['dns', 'ip', 'name', 'so_name', 'service_name']
+        self.check_mandatory_fields(mandatory_fields, **kwargs)
         dbhandle = DbmonitorHandleModels(self.credential.database_endpoint)
-        return dbhandle.register_host(self.credential, **kwargs)
+        return dbhandle.create_host(self.credential, **kwargs)
 
     def get_host(self, host_name):
         dbhandle = DbmonitorHandleModels(self.credential.database_endpoint)
         return dbhandle.get_host(host_name)
 
-    def delete_host(self, host_id):
+    def delete_host(self, host_name):
         dbhandle = DbmonitorHandleModels(self.credential.database_endpoint)
-        dbhandle.delete_host(host_id)
+        dbhandle.delete_host(host_name)
 
     def get_service(self, service_name):
         dbhandle = DbmonitorHandleModels(self.credential.database_endpoint)
         return dbhandle.get_service(service_name)
 
-    def register_service(self, **kwargs):
+    def create_service(self, **kwargs):
+        mandatory_fields = ['name']
+        self.check_mandatory_fields(mandatory_fields, **kwargs)
         dbhandle = DbmonitorHandleModels(self.credential.database_endpoint)
-        return dbhandle.register_service(self.credential, **kwargs)
+        return dbhandle.create_service(self.credential, **kwargs)
 
     def delete_service(self, service_id):
         dbhandle = DbmonitorHandleModels(self.credential.database_endpoint)
