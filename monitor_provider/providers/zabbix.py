@@ -39,8 +39,7 @@ class ProviderZabbix(ProviderBase):
         host.identifier = host.name
         self.zapi.globo.createLinuxMonitors(**data)
 
-
-    def delete_host(self, host_name):
-        data = {'host': host_name}
+    def _delete_host_monitor(self, host):
+        data = {'host': host.identifier}
         self.zapi.globo.deleteMonitors(**data)
 
