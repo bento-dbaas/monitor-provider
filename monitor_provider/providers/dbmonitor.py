@@ -65,22 +65,22 @@ class ProviderDBMonitor(ProviderBase):
 
     def _create_service_monitor(self, service, **kwargs):
         service.url = kwargs.get("url", None)
-        service.environment = kwargs.get("environment", None)
-        if not service.environment:
-            service.environment = self.credential.default_environment
+        service.dbmonitor_environment = kwargs.get("environment", None)
+        if not service.dbmonitor_environment:
+            service.dbmonitor_environment = self.credential.default_environment
 
-        environment = slugify(service.environment)
-        if environment not in TIPO_AMBIENTE.keys():
+        dbmonitor_environment = slugify(service.dbmonitor_environment)
+        if dbmonitor_environment not in TIPO_AMBIENTE.keys():
             msg = "Environment must be in this list: {}".format(
                 TIPO_AMBIENTE_LIST)
             raise Exception(msg)
-        service.environment_id = TIPO_AMBIENTE[environment]
+        service.dbmonitor_environment_id = TIPO_AMBIENTE[dbmonitor_environment]
 
         DbmonitorServico.bind(self.dbmonitor_database)
         dbmonitor_service = DbmonitorServico(
             descricao=service.name,
             url=service.url,
-            ambiente=service.environment_id,
+            ambiente=service.dbmonitor_environment_id,
             ativo=True
         )
         dbmonitor_service.save()
@@ -124,6 +124,9 @@ class ProviderDBMonitor(ProviderBase):
         host.machine_type_id = TIPO_MAQUINA[machine_type]
 
         service = self.get_service_monitor(host.service_name)
+        if not service:
+            msg = 'Service {} not found'.format(host.service_name)
+            raise Exception(msg)
         host.service_id = int(service.identifier)
 
         DbmonitorServidor.bind(self.dbmonitor_database)

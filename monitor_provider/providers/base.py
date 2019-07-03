@@ -57,6 +57,7 @@ class ProviderBase(object):
 
         service = ServiceMonitor()
         service.provider = self.provider
+        service.environment = self.environment
         service.name = name
         self._create_service_monitor(service, **kwargs)
 
@@ -66,12 +67,18 @@ class ProviderBase(object):
     def get_service_monitor(self, identifie_or_name):
         try:
             return ServiceMonitor.objects(
-                identifier=identifie_or_name).get()
+                identifier=identifie_or_name,
+                provider=self.provider,
+                environment=self.environment
+            ).get()
         except ServiceMonitor.DoesNotExist:
             pass
         try:
             return ServiceMonitor.objects(
-                name=identifie_or_name).get()
+                name=identifie_or_name,
+                provider=self.provider,
+                environment=self.environment
+            ).get()
         except ServiceMonitor.DoesNotExist:
             return None
 
@@ -79,7 +86,11 @@ class ProviderBase(object):
         raise NotImplementedError
 
     def delete_service_monitor(self, identifier):
-        service = ServiceMonitor.objects(identifier=identifier).get()
+        service = ServiceMonitor.objects(
+            identifier=identifier,
+            provider=self.provider,
+            environment=self.environment
+        ).get()
         self._delete_service_monitor(service)
         service.delete()
 
@@ -94,6 +105,7 @@ class ProviderBase(object):
 
         host = HostMonitor()
         host.provider = self.provider
+        host.environment = self.environment
         host.name = name
         host.ip = ip
 
@@ -105,12 +117,18 @@ class ProviderBase(object):
     def get_host_monitor(self, identifie_or_name):
         try:
             return HostMonitor.objects(
-                identifier=identifie_or_name).get()
+                identifier=identifie_or_name,
+                provider=self.provider,
+                environment=self.environment
+            ).get()
         except HostMonitor.DoesNotExist:
             pass
         try:
             return HostMonitor.objects(
-                name=identifie_or_name).get()
+                name=identifie_or_name,
+                provider=self.provider,
+                environment=self.environment
+            ).get()
         except ServiceMonitor.DoesNotExist:
             return None
 
@@ -118,7 +136,11 @@ class ProviderBase(object):
         raise NotImplementedError
 
     def delete_host_monitor(self, identifier):
-        host = HostMonitor.objects(identifier=identifier).get()
+        host = HostMonitor.objects(
+            identifier=identifier,
+            provider=self.provider,
+            environment=self.environment
+        ).get()
         self._delete_host_monitor(host)
         host.delete()
 

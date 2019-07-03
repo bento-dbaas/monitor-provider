@@ -3,10 +3,11 @@ from mongoengine import Document, StringField, IntField
 
 class ServiceMonitor(Document):
     provider = StringField(required=True)
+    environment = StringField(required=True)
     identifier = StringField(required=True)
     name = StringField(required=True)
-    environment = StringField(required=False)
-    environment_id = StringField(required=False)
+    dbmonitor_environment = StringField(required=False)
+    dbmonitor_environment_id = StringField(required=False)
     url = StringField(required=False)
 
     @property
@@ -17,16 +18,18 @@ class ServiceMonitor(Document):
     def get_json(self):
         return {
             'provider': self.provider,
+            'environment': self.environment,
             'identifier': self.identifier,
             'name': self.name,
-            'environment': self.environment,
-            'environment_id': self.environment_id,
+            'dbmonitor_environment': self.dbmonitor_environment,
+            'dbmonitor_environment_id': self.dbmonitor_environment_id,
             'url': self.url,
         }
 
 
 class HostMonitor(Document):
     provider = StringField(required=True)
+    environment = StringField(required=True)
     identifier = StringField(required=True)
     name = StringField(required=True)
     ip = StringField(required=True)
@@ -51,6 +54,7 @@ class HostMonitor(Document):
     def get_json(self):
         return {
             'provider': self.provider,
+            'environment': self.environment,
             'identifier': self.identifier,
             'name': self.name,
             'dns': self.dns,
