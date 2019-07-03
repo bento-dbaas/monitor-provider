@@ -2,12 +2,12 @@ from mongoengine import Document, StringField, IntField
 
 
 class ServiceMonitor(Document):
-    provider = StringField(required=True)
-    environment = StringField(required=True)
+    monitor_provider = StringField(required=True)
+    monitor_environment = StringField(required=True)
     identifier = StringField(required=True)
     name = StringField(required=True)
-    dbmonitor_environment = StringField(required=False)
-    dbmonitor_environment_id = StringField(required=False)
+    environment = StringField(required=False)
+    environment_id = StringField(required=False)
     url = StringField(required=False)
 
     @property
@@ -17,19 +17,19 @@ class ServiceMonitor(Document):
     @property
     def get_json(self):
         return {
-            'provider': self.provider,
-            'environment': self.environment,
+            'monitor_provider': self.monitor_provider,
+            'monitor_environment': self.monitor_environment,
             'identifier': self.identifier,
             'name': self.name,
-            'dbmonitor_environment': self.dbmonitor_environment,
-            'dbmonitor_environment_id': self.dbmonitor_environment_id,
+            'environment': self.environment,
+            'environment_id': self.environment_id,
             'url': self.url,
         }
 
 
 class HostMonitor(Document):
-    provider = StringField(required=True)
-    environment = StringField(required=True)
+    monitor_provider = StringField(required=True)
+    monitor_environment = StringField(required=True)
     identifier = StringField(required=True)
     name = StringField(required=True)
     ip = StringField(required=True)
@@ -53,8 +53,8 @@ class HostMonitor(Document):
     @property
     def get_json(self):
         return {
-            'provider': self.provider,
-            'environment': self.environment,
+            'monitor_provider': self.monitor_provider,
+            'monitor_environment': self.monitor_environment,
             'identifier': self.identifier,
             'name': self.name,
             'dns': self.dns,
@@ -67,4 +67,23 @@ class HostMonitor(Document):
             'service_name': self.service_name,
         }
 
+
+class WebMonitor(Document):
+    monitor_provider = StringField(required=True)
+    monitor_environment = StringField(required=True)
+    identifier = StringField(required=True)
+    hostname = StringField(required=True)
+
+    @property
+    def uuid(self):
+        return str(self.pk)
+
+    @property
+    def get_json(self):
+        return {
+            'monitor_provider': self.monitor_provider,
+            'monitor_environment': self.monitor_environment,
+            'identifier': self.identifier,
+            'hostname': self.hostname,
+        }
 

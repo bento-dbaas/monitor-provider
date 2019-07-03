@@ -155,10 +155,10 @@ def create_service_monitor(provider_name, env):
 
 
 @app.route(
-    "/<string:provider_name>/<string:env>/service/<string:identifie_or_name>",
+    "/<string:provider_name>/<string:env>/service/<string:identifier_or_name>",
     methods=['GET'])
 @auth.login_required
-def get_service_monitor(provider_name, env, identifie_or_name):
+def get_service_monitor(provider_name, env, identifier_or_name):
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
@@ -166,9 +166,9 @@ def get_service_monitor(provider_name, env, identifie_or_name):
         print_exc()
         return response_invalid_request(str(e))
 
-    service = provider.get_service_monitor(identifie_or_name)
+    service = provider.get_service_monitor(identifier_or_name)
     if not service:
-        return response_not_found(identifie_or_name)
+        return response_not_found(identifier_or_name)
     return response_ok(**service.get_json)
 
 
@@ -204,10 +204,10 @@ def create_host_monitor(provider_name, env):
 
 
 @app.route(
-    "/<string:provider_name>/<string:env>/host/<string:identifie_or_name>",
+    "/<string:provider_name>/<string:env>/host/<string:identifier_or_name>",
     methods=['GET'])
 @auth.login_required
-def get_host_monitor(provider_name, env, identifie_or_name):
+def get_host_monitor(provider_name, env, identifier_or_name):
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
@@ -215,9 +215,9 @@ def get_host_monitor(provider_name, env, identifie_or_name):
         print_exc()
         return response_invalid_request(str(e))
 
-    host = provider.get_host_monitor(identifie_or_name)
+    host = provider.get_host_monitor(identifier_or_name)
     if not host:
-        return response_not_found(identifie_or_name)
+        return response_not_found(identifier_or_name)
     return response_ok(**host.get_json)
 
 

@@ -56,28 +56,28 @@ class ProviderBase(object):
         name = kwargs.get("name")
 
         service = ServiceMonitor()
-        service.provider = self.provider
-        service.environment = self.environment
+        service.monitor_provider = self.provider
+        service.monitor_environment = self.environment
         service.name = name
         self._create_service_monitor(service, **kwargs)
 
         service.save()
         return service
 
-    def get_service_monitor(self, identifie_or_name):
+    def get_service_monitor(self, identifier_or_name):
         try:
             return ServiceMonitor.objects(
-                identifier=identifie_or_name,
-                provider=self.provider,
-                environment=self.environment
+                identifier=identifier_or_name,
+                monitor_provider=self.provider,
+                monitor_environment=self.environment
             ).get()
         except ServiceMonitor.DoesNotExist:
             pass
         try:
             return ServiceMonitor.objects(
-                name=identifie_or_name,
-                provider=self.provider,
-                environment=self.environment
+                name=identifier_or_name,
+                monitor_provider=self.provider,
+                monitor_environment=self.environment
             ).get()
         except ServiceMonitor.DoesNotExist:
             return None
@@ -88,8 +88,8 @@ class ProviderBase(object):
     def delete_service_monitor(self, identifier):
         service = ServiceMonitor.objects(
             identifier=identifier,
-            provider=self.provider,
-            environment=self.environment
+            monitor_provider=self.provider,
+            monitor_environment=self.environment
         ).get()
         self._delete_service_monitor(service)
         service.delete()
@@ -104,8 +104,8 @@ class ProviderBase(object):
         ip = kwargs.get("ip")
 
         host = HostMonitor()
-        host.provider = self.provider
-        host.environment = self.environment
+        host.monitor_provider = self.provider
+        host.monitor_environment = self.environment
         host.name = name
         host.ip = ip
 
@@ -114,22 +114,22 @@ class ProviderBase(object):
         host.save()
         return host
 
-    def get_host_monitor(self, identifie_or_name):
+    def get_host_monitor(self, identifier_or_name):
         try:
             return HostMonitor.objects(
-                identifier=identifie_or_name,
-                provider=self.provider,
-                environment=self.environment
+                identifier=identifier_or_name,
+                monitor_provider=self.provider,
+                monitor_environment=self.environment
             ).get()
         except HostMonitor.DoesNotExist:
             pass
         try:
             return HostMonitor.objects(
-                name=identifie_or_name,
-                provider=self.provider,
-                environment=self.environment
+                name=identifier_or_name,
+                monitor_provider=self.provider,
+                monitor_environment=self.environment
             ).get()
-        except ServiceMonitor.DoesNotExist:
+        except HostMonitor.DoesNotExist:
             return None
 
     def _delete_host_monitor(self, host):
@@ -138,8 +138,8 @@ class ProviderBase(object):
     def delete_host_monitor(self, identifier):
         host = HostMonitor.objects(
             identifier=identifier,
-            provider=self.provider,
-            environment=self.environment
+            monitor_provider=self.provider,
+            monitor_environment=self.environment
         ).get()
         self._delete_host_monitor(host)
         host.delete()
