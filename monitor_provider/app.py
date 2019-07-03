@@ -4,17 +4,22 @@ from bson import json_util
 from traceback import print_exc
 from flask import Flask, request, jsonify, make_response
 from flask_httpauth import HTTPBasicAuth
+from mongoengine import connect
 from monitor_provider.providers import get_provider_to
 from monitor_provider.settings import (
     APP_USERNAME,
     APP_PASSWORD,
-    LOGGING_LEVEL)
+    LOGGING_LEVEL,
+    MONGODB_DB,
+    MONGODB_PARAMS)
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
+connect(MONGODB_DB, **MONGODB_PARAMS)
 logging.basicConfig(
     level=LOGGING_LEVEL,
     format='%(asctime)s %(filename)s(%(lineno)d) %(levelname)s: %(message)s')
+
 
 @auth.verify_password
 def verify_password(username, password):
@@ -134,46 +139,48 @@ def _response(status, **kwargs):
     return make_response(content, status)
 
 
-@app.route(
-    "/<string:provider_name>/<string:env>/host/<string:host_name>",
-    methods=['GET'])
-@auth.login_required
-def get_host(provider_name, env, host_name):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        host = provider.get_host(host_name)
-        return make_response(host.to_json)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/host/new",
+@app.route("/<string:provider_name>/<string:env>/service/new",
     methods=['POST'])
 @auth.login_required
-def create_host(provider_name, env):
+def create_service_monitor(provider_name, env):
     data = json.loads(request.data or 'null')
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
-        host = provider.create_host(**data)
+        service = provider.create_service_monitor(**data)
     except Exception as e:
         print_exc()
         return response_invalid_request(str(e))
-    return response_created(success=True, host=host)
+    return response_created(success=True, identifier=service.identifier)
 
 
 @app.route(
-    "/<string:provider_name>/<string:env>/host/<string:host_name>",
-    methods=['DELETE'])
+    "/<string:provider_name>/<string:env>/service/<string:identifie_or_name>",
+    methods=['GET'])
 @auth.login_required
-def delete_host(provider_name, env, host_name):
+def get_service_monitor(provider_name, env, identifie_or_name):
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
-        provider.delete_host(host_name)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+
+    service = provider.get_service_monitor(identifie_or_name)
+    if not service:
+        return response_not_found(identifie_or_name)
+    return response_ok(**service.get_json)
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/service/<string:identifier>",
+    methods=['DELETE'])
+@auth.login_required
+def delete_service_monitor(provider_name, env, identifier):
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        provider.delete_service_monitor(identifier)
     except Exception as e:
         print_exc()
         return response_invalid_request(str(e))
@@ -181,44 +188,48 @@ def delete_host(provider_name, env, host_name):
 
 
 @app.route(
-    "/<string:provider_name>/<string:env>/service/<string:service_name>",
-    methods=['GET'])
-@auth.login_required
-def get_service(provider_name, env, service_name):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        service = provider.get_service(service_name)
-        return make_response(service.to_json)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-
-
-@app.route("/<string:provider_name>/<string:env>/service/new",
+    "/<string:provider_name>/<string:env>/host/new",
     methods=['POST'])
 @auth.login_required
-def create_service(provider_name, env):
+def create_host_monitor(provider_name, env):
     data = json.loads(request.data or 'null')
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
-        service = provider.create_service(**data)
+        host = provider.create_host_monitor(**data)
     except Exception as e:
         print_exc()
         return response_invalid_request(str(e))
-    return response_created(success=True, service=service)
+    return response_created(success=True, identifier=host.identifier)
 
 
 @app.route(
-    "/<string:provider_name>/<string:env>/service/<string:service_name>",
-    methods=['DELETE'])
+    "/<string:provider_name>/<string:env>/host/<string:identifie_or_name>",
+    methods=['GET'])
 @auth.login_required
-def delete_service(provider_name, env, service_name):
+def get_host_monitor(provider_name, env, identifie_or_name):
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
-        provider.delete_service(service_name)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+
+    host = provider.get_host_monitor(identifie_or_name)
+    if not host:
+        return response_not_found(identifie_or_name)
+    return response_ok(**host.get_json)
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/host/<string:host_name>",
+    methods=['DELETE'])
+@auth.login_required
+def delete_host_monitor(provider_name, env, host_name):
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        provider.delete_host_monitor(host_name)
     except Exception as e:
         print_exc()
         return response_invalid_request(str(e))

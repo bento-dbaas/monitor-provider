@@ -27,21 +27,17 @@ class ProviderZabbix(ProviderBase):
             self._zapi.login(self.credential.user, self.credential.password)
         return self._zapi
 
-    def create_host(self, **kwargs):
-        mandatory_fields = ['name', 'ip']
-        self.check_mandatory_fields(mandatory_fields, **kwargs)
+    def _create_host_monitor(self, host, **kwargs):
         data = {
-            'host': kwargs.get("name"),
-            'ip': kwargs.get("ip"),
+            'host': host.name,
+            'ip': host.ip,
             'environment': self.credential.default_environment,
             'locality': self.credential.default_locality,
             'hostgroups': self.credential.default_hostgroups,
             'alarm': self.credential.alarm
         }
-
+        host.identifier = host.name
         self.zapi.globo.createLinuxMonitors(**data)
-
-        return 1
 
 
     def delete_host(self, host_name):
