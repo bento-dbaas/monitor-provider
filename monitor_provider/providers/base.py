@@ -1,6 +1,4 @@
-from monitor_provider.models.monitor_provider_models import (
-    ServiceMonitor,
-    HostMonitor)
+from monitor_provider.models.models import ServiceMonitor, HostMonitor
 
 
 class ProviderBase(object):

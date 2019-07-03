@@ -2,7 +2,7 @@ from monitor_provider.credentials.dbmonitor import (
         CredentialDBMonitor, CredentialAddDBMonitor
     )
 from monitor_provider.providers.base import ProviderBase
-from monitor_provider.models.dbmonitor import (
+from monitor_provider.models.dbmonitor_models import (
     DbmonitorServico,
     DbmonitorCloud,
     DbmonitorServicoServidores,
