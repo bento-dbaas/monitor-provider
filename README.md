@@ -68,7 +68,7 @@ curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/service/identi
 curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/host/new' -H 'Content-Type: application/json' -d '{ "dns": "DNS", "ip": "IP Address", "host_name": "Host name", "so_name": "SO Name", "cpu": "number of CPUs", "memory_mb": "memory size in MB", "organization_name": "organization name", "cloud_name": "cloud name", "machine_type": "Machine type description", "service_name": "Service name"}'
 ```
 Provider | Mandatory fields | Optional fields
------------- | -------------
+------------ | ------------- | -------------
 DBMonitor | host_name, ip, dns, so_name, service_name | cpu, memory_mb, machine_type, organization_name, cloud_name
 Zabbix | host_name, ip | dns, so_name, service_name | cpu, memory_mb, machine_type, organization_name, cloud_name,
 
@@ -95,7 +95,7 @@ host_name, url, required_string |
 
 ###### GET
 ```
-curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/web/identifier_or_name'
+curl -X GET '<monitor-provider_endpoint>/<provider_name>/<env>/web/identifier_or_name'
 ```
 
 ###### DELETE
