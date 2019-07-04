@@ -10,6 +10,54 @@ Tsuru app to register Zabbix and DBMonitor Monitors
 
 ## Credentials
 
+###### ADD
+
+1. DBMonitor
+
+```
+curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/credential/new' -H 'Content-Type: application/json' -d
+'{{
+  "user": "database user",
+  "password": "database passwoed",
+  "host": "database endpoint",
+  "port": database_port,
+  "database": "database name",
+  "default_cloud_name": "default cloud name",
+  "default_organization_name": "default organization name",
+  "default_machine_type": "machine type description",
+  "default_environment": "default environment"
+}}
+```
+
+2. Zabbix
+
+```
+curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/credential/new' -H 'Content-Type: application/json' -d
+'{{
+  "user": "api user",
+  "password": "api password",
+  "endpoint": "api endpoint",
+  "default_environment": "default environment",
+  "default_locality": "default locality",
+  "default_hostgroups": "default hostgroup",
+  "alarm": "alarm flag"
+}}
+```
+
+###### GET
+
+1. All provider credentials
+
+```
+curl -X GET '<monitor-provider_endpoint>/<provider_name>/credentials'
+```
+
+2. Environment provider credential
+
+```
+curl -X GET '<monitor-provider_endpoint>/<provider_name>/env/credential'
+```
+
 ## Monitors
 
 ### Service Monitor (available only DBMonitor)
@@ -32,11 +80,11 @@ curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/service/identifi
 curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/service/identifier'
 ```
 
-### Host Monitor (available both DBMonitor and Zabbix)
+### Host Monitor (available on both: DBMonitor and Zabbix)
 ###### ADD
 
 ```
-curl -u 'username:password' -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/host/new' -H 'Content-Type: application/json' -d '{"ip": "ip", "host_name": "host_name"}'
+curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/host/new' -H 'Content-Type: application/json' -d '{"ip": "ip", "host_name": "host_name"}'
 ```
 Mandatory fields on DBMonitor provider:
 
@@ -48,9 +96,27 @@ Optional fields on Zabbix provider:
 
 
 ###### GET
+```
+curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/host/identifier_or_name'
+```
+
 ###### DELETE
+```
+curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/host/identifier'
+```
 
 ### Web Monitor (available only Zabbix)
 ###### ADD
+```
+curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/web/new' -H 'Content-Type: application/json' -d '{"ip": "ip", "host_name": "host_name"}'
+```
+
 ###### GET
+```
+curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/web/identifier_or_name'
+```
+
 ###### DELETE
+```
+curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/web/identifier'
+```
