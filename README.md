@@ -15,33 +15,13 @@ Tsuru app to register Zabbix and DBMonitor Monitors
 1. DBMonitor
 
 ```
-curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/credential/new' -H 'Content-Type: application/json' -d
-'{{
-  "user": "database user",
-  "password": "database passwoed",
-  "host": "database endpoint",
-  "port": database_port,
-  "database": "database name",
-  "default_cloud_name": "default cloud name",
-  "default_organization_name": "default organization name",
-  "default_machine_type": "machine type description",
-  "default_environment": "default environment"
-}}
+curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/credential/new' -H 'Content-Type: application/json' -d '{{ "user": "database user", "password": "database passwoed", "host": "database endpoint", "port": database_port, "database": "database name", "default_cloud_name": "default cloud name", "default_organization_name": "default organization name", "default_machine_type": "machine type description", "default_environment": "default environment" }}
 ```
 
 2. Zabbix
 
 ```
-curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/credential/new' -H 'Content-Type: application/json' -d
-'{{
-  "user": "api user",
-  "password": "api password",
-  "endpoint": "api endpoint",
-  "default_environment": "default environment",
-  "default_locality": "default locality",
-  "default_hostgroups": "default hostgroup",
-  "alarm": "alarm flag"
-}}
+curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/credential/new' -H 'Content-Type: application/json' -d '{{"user": "api user", "password": "api password", "endpoint": "api endpoint", "default_environment": "default environment", "default_locality", "default locality", "default_hostgroups": "default hostgroup", "alarm": "alarm flag }}
 ```
 
 ###### GET
@@ -66,9 +46,10 @@ curl -X GET '<monitor-provider_endpoint>/<provider_name>/env/credential'
 ```
 curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/service/new' -H 'Content-Type: application/json' -d '{"service_name": "service name",  "url": "url"}
 ```
-Mandatory fields: service_name
+Mandatory fields | Optional fields
+------------ | -------------
+service_name | service_name
 
-Optional fields: url
 
 ###### GET
 ```
