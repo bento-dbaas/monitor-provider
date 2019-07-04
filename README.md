@@ -15,10 +15,20 @@ Tsuru app to register Zabbix and DBMonitor Monitors
 ### Service Monitor (available only DBMonitor)
 ###### ADD
 ```
-curl -u 'username:password' -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/service/new' -H 'Content-Type: application/json' -d '{"**service_name**": "service name",  "url": "url"}
+curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/service/new' -H 'Content-Type: application/json' -d '{"service_name": "service name",  "url": "url"}
 ```
+Mandatory: service_name
+Optional: url
+
 ###### GET
+```
+curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/service/identifier_or_name'
+```
+
 ###### DELETE
+```
+curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/service/identifier'
+```
 
 ### Host Monitor (available both DBMonitor and Zabbix)
 ###### ADD
