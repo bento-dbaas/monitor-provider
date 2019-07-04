@@ -23,15 +23,3 @@ APP_USERNAME = getenv("APP_USERNAME", None)
 APP_PASSWORD = getenv("APP_PASSWORD", None)
 
 LOGGING_LEVEL = int(getenv('LOGGING_LEVEL', logging.INFO))
-
-'''
-MYSQL_DB='dbmonitor'
-MYSQL_HOST='localhost'
-MYSQL_PORT=3306
-MYSQL_USER='root'
-MYSQL_PWD='root'
-MYSQL_PARAMS = {"database": MYSQL_DB, "host": MYSQL_HOST, "port": MYSQL_PORT}
-if MYSQL_USER:
-    MYSQL_PARAMS["user"] = MYSQL_USER
-    MYSQL_PARAMS["password"] = MYSQL_PWD
-'''
