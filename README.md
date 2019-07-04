@@ -1,2 +1,4 @@
 # monitor-provider
-HTTP endpoints to Monitoring Services at Globo.com (Zabbix and DBMonitor)
+App do tsuru para cadastrar monitorações no Zabbix e DBMonitor
+- Prod: `tsuru app-info -a monitor-provider`
+- Dev: `tsuru app-info -a monitor-provider-dev`
