@@ -40,7 +40,7 @@ curl -X GET '<monitor-provider_endpoint>/<provider_name>/env/credential'
 
 ## Monitors
 
-### Service Monitor (available only DBMonitor)
+### Service Monitor (available only on DBMonitor)
 
 ###### ADD
 ```
@@ -82,7 +82,7 @@ curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/host/identifier_
 curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/host/identifier'
 ```
 
-### Web Monitor (available only Zabbix)
+### Web Monitor (available only on Zabbix)
 ###### ADD
 ```
 curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/web/new' -H 'Content-Type: application/json' -d '{"host_name": "host_name", "required_string": "WORKING", "url": "url"}'
