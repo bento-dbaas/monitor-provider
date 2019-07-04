@@ -70,7 +70,7 @@ curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/host/new' -H 'Co
 Provider | Mandatory fields | Optional fields
 ------------ | ------------- | -------------
 DBMonitor | host_name, ip, dns, so_name, service_name | cpu, memory_mb, machine_type, organization_name, cloud_name
-Zabbix | host_name, ip | dns, so_name, service_name | cpu, memory_mb, machine_type, organization_name, cloud_name,
+Zabbix | host_name, ip | dns, so_name, service_name, cpu, memory_mb, machine_type, organization_name, cloud_name
 
 ###### GET
 ```
