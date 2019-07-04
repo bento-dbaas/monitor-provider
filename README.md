@@ -48,7 +48,7 @@ curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/service/new' -H 
 ```
 Mandatory fields | Optional fields
 ------------ | -------------
-service_name | service_name
+service_name | url
 
 
 ###### GET
@@ -65,16 +65,12 @@ curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/service/identi
 ###### ADD
 
 ```
-curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/host/new' -H 'Content-Type: application/json' -d '{"ip": "ip", "host_name": "host_name"}'
+curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/host/new' -H 'Content-Type: application/json' -d '{ "dns": "DNS", "ip": "IP Address", "host_name": "Host name", "so_name": "SO Name", "cpu": "number of CPUs", "memory_mb": "memory size in MB", "organization_name": "organization name", "cloud_name": "cloud name", "machine_type": "Machine type description", "service_name": "Service name"}'
 ```
-Mandatory fields on DBMonitor provider:
-
-Optional fields on DBMonitor provider:
-
-Mandatory fields on Zabbix provider:
-
-Optional fields on Zabbix provider:
-
+Provider | Mandatory fields | Optional fields
+------------ | -------------
+DBMonitor | host_name, ip, dns, so_name, service_name | cpu, memory_mb, machine_type, organization_name, cloud_name
+Zabbix | host_name, ip | dns, so_name, service_name | cpu, memory_mb, machine_type, organization_name, cloud_name,
 
 ###### GET
 ```
@@ -89,8 +85,13 @@ curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/host/identifie
 ### Web Monitor (available only Zabbix)
 ###### ADD
 ```
-curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/web/new' -H 'Content-Type: application/json' -d '{"ip": "ip", "host_name": "host_name"}'
+curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/web/new' -H 'Content-Type: application/json' -d '{"host_name": "host_name", "required_string": "WORKING", "url": "url"}'
 ```
+
+Mandatory fields | Optional fields
+------------ | -------------
+host_name, url, required_string |
+
 
 ###### GET
 ```
