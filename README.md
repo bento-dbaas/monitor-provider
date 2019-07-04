@@ -53,7 +53,7 @@ service_name | url
 
 ###### GET
 ```
-curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/service/identifier_or_name'
+curl -X GET '<monitor-provider_endpoint>/<provider_name>/<env>/service/identifier_or_name'
 ```
 
 ###### DELETE
@@ -74,7 +74,7 @@ Zabbix | host_name, ip | dns, so_name, service_name, cpu, memory_mb, machine_typ
 
 ###### GET
 ```
-curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/host/identifier_or_name'
+curl -X GET '<monitor-provider_endpoint>/<provider_name>/<env>/host/identifier_or_name'
 ```
 
 ###### DELETE
