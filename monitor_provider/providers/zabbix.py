@@ -1,8 +1,16 @@
+import logging
 from pyzabbix import ZabbixAPI
 from monitor_provider.credentials.zabbix import (
         CredentialZabbix, CredentialAddZabbix
     )
 from monitor_provider.providers.base import ProviderBase
+from monitor_provider.settings import LOGGING_LEVEL
+
+
+logging.basicConfig(
+    level=LOGGING_LEVEL,
+    format='%(asctime)s %(filename)s(%(lineno)d) %(levelname)s: %(message)s')
+
 
 class ProviderZabbix(ProviderBase):
 
@@ -28,18 +36,52 @@ class ProviderZabbix(ProviderBase):
         return self._zapi
 
     def _create_host_monitor(self, host, **kwargs):
+        host.identifier = host.host_name
+        host.environment = self.credential.default_environment
+        host.locality = self.credential.default_locality
+        host.hostgroups = self.credential.default_hostgroups
+        host.alarm = self.credential.alarm
         data = {
-            'host': host.name,
+            'host': host.host_name,
             'ip': host.ip,
-            'environment': self.credential.default_environment,
-            'locality': self.credential.default_locality,
-            'hostgroups': self.credential.default_hostgroups,
-            'alarm': self.credential.alarm
+            'environment': host.environment,
+            'locality': host.locality,
+            'hostgroups': host.hostgroups,
+            'alarm': host.alarm
         }
-        host.identifier = host.name
+
         self.zapi.globo.createLinuxMonitors(**data)
 
     def _delete_host_monitor(self, host):
         data = {'host': host.identifier}
         self.zapi.globo.deleteMonitors(**data)
 
+    def _create_web_monitor(self, web, **kwargs):
+
+        mandatory_fields = ['host_name', 'url', 'required_string']
+        self.check_mandatory_fields(mandatory_fields, **kwargs)
+
+        web.environment = self.credential.default_environment
+        web.locality = self.credential.default_locality
+        web.hostgroups = self.credential.default_hostgroups
+        web.alarm = self.credential.alarm
+        web.url = kwargs.get("url", None)
+        web.required_string = kwargs.get("required_string", None)
+
+        web.host = web.url.replace('http://', 'web_')
+        web.identifier = web.host.replace(':', '_').replace('/', '_')
+
+        data = {
+            'environment': web.environment,
+            'locality': web.locality,
+            'hostgroups': web.hostgroups,
+            'alarm': web.alarm,
+            'url': web.url,
+            'required_string': web.required_string
+        }
+
+        self.zapi.globo.createWebMonitors(**data)
+
+    def _delete_web_monitor(self, web):
+        data = {'host': web.host}
+        self.zapi.globo.deleteMonitors(**data)

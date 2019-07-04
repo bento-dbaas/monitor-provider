@@ -9,7 +9,6 @@ from monitor_provider.models.dbmonitor_models import (
     DbmonitorOrganizacao,
     DbmonitorServidor)
 from peewee import MySQLDatabase, fn
-
 from slugify import slugify
 
 AMBIENTE_PRODUCAO = 'P'
@@ -78,7 +77,7 @@ class ProviderDBMonitor(ProviderBase):
 
         DbmonitorServico.bind(self.dbmonitor_database)
         dbmonitor_service = DbmonitorServico(
-            descricao=service.name,
+            descricao=service.service_name,
             url=service.url,
             ambiente=service.environment_id,
             ativo=True
@@ -92,7 +91,7 @@ class ProviderDBMonitor(ProviderBase):
             DbmonitorServico.id == service.identifier).execute()
 
     def _create_host_monitor(self, host, **kwargs):
-        mandatory_fields = ['dns', 'ip', 'name', 'so_name', 'service_name']
+        mandatory_fields = ['dns', 'ip', 'host_name', 'so_name', 'service_name']
         self.check_mandatory_fields(mandatory_fields, **kwargs)
         host.dns = kwargs.get("dns", None)
         host.so_name = kwargs.get("so_name", None)
@@ -133,7 +132,7 @@ class ProviderDBMonitor(ProviderBase):
         dbmonitor_host = DbmonitorServidor(
             dns=host.dns,
             ip=host.ip,
-            nome=host.name,
+            nome=host.host_name,
             tipo = host.machine_type_id,
             tipo_so = host.so_name,
             quantidade_cpu=host.cpu,

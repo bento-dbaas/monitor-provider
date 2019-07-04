@@ -1,4 +1,7 @@
-from monitor_provider.models.models import ServiceMonitor, HostMonitor
+from monitor_provider.models.models import (
+    ServiceMonitor,
+    HostMonitor,
+    WebMonitor)
 
 
 class ProviderBase(object):
@@ -51,14 +54,14 @@ class ProviderBase(object):
         raise NotImplementedError
 
     def create_service_monitor(self, **kwargs):
-        mandatory_fields = ['name']
+        mandatory_fields = ['service_name']
         self.check_mandatory_fields(mandatory_fields, **kwargs)
-        name = kwargs.get("name")
+        service_name = kwargs.get("service_name")
 
         service = ServiceMonitor()
         service.monitor_provider = self.provider
         service.monitor_environment = self.environment
-        service.name = name
+        service.service_name = service_name
         self._create_service_monitor(service, **kwargs)
 
         service.save()
@@ -75,7 +78,7 @@ class ProviderBase(object):
             pass
         try:
             return ServiceMonitor.objects(
-                name=identifier_or_name,
+                service_name=identifier_or_name,
                 monitor_provider=self.provider,
                 monitor_environment=self.environment
             ).get()
@@ -98,15 +101,15 @@ class ProviderBase(object):
         raise NotImplementedError
 
     def create_host_monitor(self, **kwargs):
-        mandatory_fields = ['name', 'ip']
+        mandatory_fields = ['host_name', 'ip']
         self.check_mandatory_fields(mandatory_fields, **kwargs)
-        name = kwargs.get("name")
+        host_name = kwargs.get("host_name")
         ip = kwargs.get("ip")
 
         host = HostMonitor()
         host.monitor_provider = self.provider
         host.monitor_environment = self.environment
-        host.name = name
+        host.host_name = host_name
         host.ip = ip
 
         self._create_host_monitor(host, **kwargs)
@@ -125,7 +128,7 @@ class ProviderBase(object):
             pass
         try:
             return HostMonitor.objects(
-                name=identifier_or_name,
+                host_name=identifier_or_name,
                 monitor_provider=self.provider,
                 monitor_environment=self.environment
             ).get()
@@ -144,11 +147,43 @@ class ProviderBase(object):
         self._delete_host_monitor(host)
         host.delete()
 
-    def create_web_monitor(self, ):
-        pass
+    def _create_web_monitor(self, web, **kwargs):
+        raise NotImplementedError
 
-    def get_web_monitor(self, ):
-        pass
+    def create_web_monitor(self, **kwargs):
+        mandatory_fields = ['host_name']
+        self.check_mandatory_fields(mandatory_fields, **kwargs)
+        host_name = kwargs.get("host_name")
 
-    def delete_web_monitor(self, ):
-        pass
+        web = WebMonitor()
+        web.monitor_provider = self.provider
+        web.monitor_environment = self.environment
+        web.host_name = host_name
+
+        self._create_web_monitor(web, **kwargs)
+
+        web.save()
+        return web
+
+
+    def get_web_monitor(self, identifier):
+        try:
+            return WebMonitor.objects(
+                identifier=identifier,
+                monitor_provider=self.provider,
+                monitor_environment=self.environment
+            ).get()
+        except WebMonitor.DoesNotExist:
+            return None
+
+    def _delete_web_monitor(self, web):
+        raise NotImplementedError
+
+    def delete_web_monitor(self, identifier):
+        host = WebMonitor.objects(
+            identifier=identifier,
+            monitor_provider=self.provider,
+            monitor_environment=self.environment
+        ).get()
+        self._delete_web_monitor(host)
+        host.delete()

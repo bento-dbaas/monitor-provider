@@ -222,14 +222,63 @@ def get_host_monitor(provider_name, env, identifier_or_name):
 
 
 @app.route(
-    "/<string:provider_name>/<string:env>/host/<string:host_name>",
+    "/<string:provider_name>/<string:env>/host/<string:identifier>",
     methods=['DELETE'])
 @auth.login_required
-def delete_host_monitor(provider_name, env, host_name):
+def delete_host_monitor(provider_name, env, identifier):
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
-        provider.delete_host_monitor(host_name)
+        provider.delete_host_monitor(identifier)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+    return response_ok()
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/web/new",
+    methods=['POST'])
+@auth.login_required
+def create_web_monitor(provider_name, env):
+    data = json.loads(request.data or 'null')
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        web = provider.create_web_monitor(**data)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+    return response_created(success=True, identifier=web.identifier)
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/web/<string:identifier_or_name>",
+    methods=['GET'])
+@auth.login_required
+def get_web_monitor(provider_name, env, identifier_or_name):
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+
+    host = provider.get_web_monitor(identifier_or_name)
+    if not host:
+        return response_not_found(identifier_or_name)
+    return response_ok(**host.get_json)
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/web/<string:identifier>",
+    methods=['DELETE'])
+@auth.login_required
+def delete_web_monitor(provider_name, env, identifier):
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        provider.delete_web_monitor(identifier)
     except Exception as e:
         print_exc()
         return response_invalid_request(str(e))
