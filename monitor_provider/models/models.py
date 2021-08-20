@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, IntField
+from mongoengine import Document, StringField, IntField, BooleanField
 
 
 class ServiceMonitor(Document):
@@ -24,6 +24,44 @@ class ServiceMonitor(Document):
             'environment': self.environment,
             'environment_id': self.environment_id,
             'url': self.url,
+        }
+        return {k: v for k, v in d.items() if v}
+
+
+class DatabaseCassandraMonitor(Document):
+    monitor_provider = StringField(required=True)
+    monitor_environment = StringField(required=True)
+    active = BooleanField(required=True)
+    identifier = StringField(required=True)
+    environment = StringField(required=False)
+    environment_id = StringField(required=False)
+    database_name = StringField(required=False)
+    type = StringField(required=False)
+    port = IntField(required=False)
+    version = StringField(required=False)
+    username = StringField(required=True)
+    password = StringField(required=True)
+    cloud_name = StringField(required=False)
+    cloud_id = IntField(required=False)
+
+    @property
+    def uuid(self):
+        return str(self.pk)
+
+    @property
+    def get_json(self):
+        d = {
+            'database_name': self.database_name,
+            'environment': self.environment,
+            'environment_id': self.environment_id,
+            'identifier': self.identifier,
+            'monitor_environment': self.monitor_environment,
+            'monitor_provider': self.monitor_provider,
+            'password': self.password,
+            'port': self.port,
+            'type': self.type,
+            'username': self.username,
+            'version': self.version,
         }
         return {k: v for k, v in d.items() if v}
 
