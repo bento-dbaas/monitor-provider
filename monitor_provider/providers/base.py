@@ -1,7 +1,10 @@
+from mongoengine.queryset.visitor import Q
+
 from monitor_provider.models.models import (
     ServiceMonitor,
     HostMonitor,
-    WebMonitor)
+    WebMonitor,
+    DatabaseCassandraMonitor)
 
 
 class ProviderBase(object):
@@ -66,6 +69,57 @@ class ProviderBase(object):
 
         service.save()
         return service
+
+    def get_database_cassandra_monitor(self, identifier_or_name):
+        try:
+            return DatabaseCassandraMonitor.objects(
+                Q(identifier=identifier_or_name) | Q(database_name=identifier_or_name),
+                monitor_provider=self.provider,
+                monitor_environment=self.environment
+            ).get()
+        except DatabaseCassandraMonitor.DoesNotExist:
+            return None
+
+    def _create_database_cassandra_monitor(self, cassandra, **kwargs):
+        raise NotImplementedError
+
+    def create_database_cassandra_monitor(self, **kwargs):
+        mandatory_fields = ['database_name', 'type', 'port', 'version', 'username', 'password', 'cloud_name']
+        self.check_mandatory_fields(mandatory_fields, **kwargs)
+
+        database_name = kwargs.get('database_name')
+        if self.get_database_cassandra_monitor(database_name):
+            raise Exception(
+                "A database named '{}' already exists".format(database_name)
+            )
+
+        cassandra = DatabaseCassandraMonitor()
+        cassandra.monitor_provider = self.provider
+        cassandra.monitor_environment = self.environment
+        cassandra.database_name = database_name
+        cassandra.identifier = kwargs.get('identifier')
+        cassandra.port = kwargs.get('port')
+        cassandra.type = kwargs.get('type')
+        cassandra.username = kwargs.get('username')
+        cassandra.password = kwargs.get('password')
+        cassandra.version = kwargs.get('version')
+        cassandra.active = False
+        self._create_database_cassandra_monitor(cassandra, **kwargs)
+
+        cassandra.save()
+        return cassandra
+
+    def _delete_database_cassandra_monitor(self, cassandra):
+        raise NotImplementedError
+
+    def delete_database_cassandra_monitor(self, identifier):
+        cassandra = DatabaseCassandraMonitor.objects(
+            identifier=identifier,
+            monitor_provider=self.provider,
+            monitor_environment=self.environment
+        ).get()
+        self._delete_database_cassandra_monitor(cassandra)
+        cassandra.delete()
 
     def get_service_monitor(self, identifier_or_name):
         try:

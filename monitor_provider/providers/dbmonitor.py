@@ -7,7 +7,8 @@ from monitor_provider.models.dbmonitor_models import (
     DbmonitorCloud,
     DbmonitorServicoServidores,
     DbmonitorOrganizacao,
-    DbmonitorServidor)
+    DbmonitorServidor,
+    DbmonitorDatabase)
 from peewee import MySQLDatabase, fn
 from slugify import slugify
 
@@ -31,6 +32,15 @@ TIPO_MAQUINA = {
 }
 TIPO_MAQUINA_LIST = (MAQUINA_FISICA_DESC, MAQUINA_VIRTUAL_DESC)
 
+SGBD_CASSANDRA = 'C'
+SGBD_CHOICES = (
+    (SGBD_CASSANDRA, u'Cassandra'),
+)
+
+CASSANDRA_CLUSTER = 18
+TOPOLOGIA_CHOICES = (
+    (CASSANDRA_CLUSTER, u'Cassandra Cluster'),
+)
 
 
 class ProviderDBMonitor(ProviderBase):
@@ -89,6 +99,38 @@ class ProviderDBMonitor(ProviderBase):
         DbmonitorServico.bind(self.dbmonitor_database)
         DbmonitorServico.delete().where(
             DbmonitorServico.id == service.identifier).execute()
+
+    def _create_database_cassandra_monitor(self, cassandra, **kwargs):
+        cassandra.cloud_name = kwargs.get('cloud_name', None)
+
+        if not cassandra.cloud_name:
+            cassandra.cloud_name = self.credential.default_cloud_name
+        cassandra.cloud_id  = self.get_cloud_by_name(cassandra.cloud_name)
+
+        DbmonitorDatabase.bind(self.dbmonitor_database)
+        database = DbmonitorDatabase(
+            nome=cassandra.database_name,
+            maquina=kwargs.get('machine'),
+            tipo=cassandra.type,
+            dns=kwargs.get('dns'),
+            porta=cassandra.port,
+            versao=cassandra.version,
+            usuario=cassandra.username,
+            senha=cassandra.password,
+            cloud_id=cassandra.cloud_id,
+            ativo=cassandra.active,
+            sgbd=SGBD_CASSANDRA,
+            topologia=CASSANDRA_CLUSTER
+        )
+
+        database.save()
+        cassandra.identifier = str(database.id)
+
+    def _delete_database_cassandra_monitor(self, cassandra):
+        DbmonitorDatabase.bind(self.dbmonitor_database)
+        DbmonitorDatabase.update({DbmonitorDatabase.ativo: False}).where(
+            DbmonitorDatabase.id == int(cassandra.identifier)
+        ).execute()
 
     def _create_host_monitor(self, host, **kwargs):
         mandatory_fields = ['dns', 'ip', 'host_name', 'so_name', 'service_name']
