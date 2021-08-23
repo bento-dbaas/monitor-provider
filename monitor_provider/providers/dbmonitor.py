@@ -8,7 +8,8 @@ from monitor_provider.models.dbmonitor_models import (
     DbmonitorServicoServidores,
     DbmonitorOrganizacao,
     DbmonitorServidor,
-    DbmonitorDatabase)
+    DbmonitorDatabase,
+    DbmonitorInstancia)
 from peewee import MySQLDatabase, fn
 from slugify import slugify
 
@@ -41,6 +42,8 @@ CASSANDRA_CLUSTER = 18
 TOPOLOGIA_CHOICES = (
     (CASSANDRA_CLUSTER, u'Cassandra Cluster'),
 )
+
+INSTANCIA_CASSANDRA = 18
 
 
 class ProviderDBMonitor(ProviderBase):
@@ -130,6 +133,30 @@ class ProviderDBMonitor(ProviderBase):
         DbmonitorDatabase.bind(self.dbmonitor_database)
         DbmonitorDatabase.update({DbmonitorDatabase.ativo: False}).where(
             DbmonitorDatabase.id == int(cassandra.identifier)
+        ).execute()
+
+    def _create_instance_cassandra_monitor(self, instance, **kwargs):
+        DbmonitorInstancia.bind(self.dbmonitor_database)
+        database = DbmonitorInstancia(
+            database_id=instance.database_id,
+            dns=instance.dns,
+            tipo_mongodb=None,
+            disk_path=instance.disk_path,
+            tipo_maquina=MAQUINA_VIRTUAL,
+            tipo_instancia=INSTANCIA_CASSANDRA,
+            nome=instance.instance_name,
+            maquina=instance.machine,
+            porta=instance.port,
+            ativo=instance.active,
+        )
+
+        database.save()
+        instance.identifier = str(database.id)
+
+    def _delete_instance_cassandra_monitor(self, instance):
+        DbmonitorInstancia.bind(self.dbmonitor_database)
+        DbmonitorInstancia.update({DbmonitorInstancia.ativo: False}).where(
+            DbmonitorInstancia.id == int(instance.identifier)
         ).execute()
 
     def _create_host_monitor(self, host, **kwargs):

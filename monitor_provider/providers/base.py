@@ -4,7 +4,8 @@ from monitor_provider.models.models import (
     ServiceMonitor,
     HostMonitor,
     WebMonitor,
-    DatabaseCassandraMonitor)
+    DatabaseCassandraMonitor,
+    InstanceCassandraMonitor)
 
 
 class ProviderBase(object):
@@ -97,13 +98,12 @@ class ProviderBase(object):
         cassandra.monitor_provider = self.provider
         cassandra.monitor_environment = self.environment
         cassandra.database_name = database_name
-        cassandra.identifier = kwargs.get('identifier')
         cassandra.port = kwargs.get('port')
         cassandra.type = kwargs.get('type')
         cassandra.username = kwargs.get('username')
         cassandra.password = kwargs.get('password')
         cassandra.version = kwargs.get('version')
-        cassandra.active = False
+        cassandra.active = True
         self._create_database_cassandra_monitor(cassandra, **kwargs)
 
         cassandra.save()
@@ -120,6 +120,56 @@ class ProviderBase(object):
         ).get()
         self._delete_database_cassandra_monitor(cassandra)
         cassandra.delete()
+
+    def get_instance_cassandra_monitor(self, identifier_or_name):
+        try:
+            return InstanceCassandraMonitor.objects(
+                Q(identifier=identifier_or_name) | Q(instance_name=identifier_or_name),
+                monitor_provider=self.provider,
+                monitor_environment=self.environment
+            ).get()
+        except InstanceCassandraMonitor.DoesNotExist:
+            return None
+
+    def _create_instance_cassandra_monitor(self, instance, **kwargs):
+        raise NotImplementedError
+
+    def create_instance_cassandra_monitor(self, **kwargs):
+        mandatory_fields = ['instance_name', 'machine', 'dns', 'port', 'disk_path', 'database_id']
+        self.check_mandatory_fields(mandatory_fields, **kwargs)
+
+        instance_name = kwargs.get('instance_name')
+        if self.get_instance_cassandra_monitor(instance_name):
+            raise Exception(
+                "A instance name '{}' already exists".format(instance_name)
+            )
+
+        instance = InstanceCassandraMonitor()
+        instance.monitor_provider = self.provider
+        instance.monitor_environment = self.environment
+        instance.instance_name = instance_name
+        instance.database_id = kwargs.get('database_id')
+        instance.port = kwargs.get('port')
+        instance.dn = kwargs.get('dns')
+        instance.machine = kwargs.get('machine')
+        instance.disk_path = kwargs.get('disk_path')
+        instance.active = True
+        self._create_instance_cassandra_monitor(instance, **kwargs)
+
+        instance.save()
+        return instance
+
+    def _delete_instance_cassandra_monitor(self, identifier):
+        raise NotImplementedError
+
+    def delete_instance_cassandra_monitor(self, identifier):
+        instance = InstanceCassandraMonitor.objects(
+            identifier=identifier,
+            monitor_provider=self.provider,
+            monitor_environment=self.environment
+        ).get()
+        self._delete_instance_cassandra_monitor(instance)
+        instance.delete()
 
     def get_service_monitor(self, identifier_or_name):
         try:

@@ -91,6 +91,27 @@ class DbmonitorDatabase(BaseModel):
         table_name = 'dbmonitor_database'
 
 
+class DbmonitorInstancia(BaseModel):
+    database_id = ForeignKeyField(
+        column_name='database_id',
+        field='id',
+        model=DbmonitorDatabase,
+        null=True
+    )
+    nome = CharField()
+    maquina = CharField()
+    dns = CharField()
+    porta = CharField()
+    ativo = BooleanField(default=True)
+    tipo_mongodb = CharField()
+    disk_path = CharField()
+    tipo_maquina = CharField()
+    tipo_instancia = IntegerField()
+
+    class Meta:
+        table_name = 'dbmonitor_instancia'
+
+
 class DbmonitorServico(BaseModel):
     ambiente = CharField()
     ativo = IntegerField()
