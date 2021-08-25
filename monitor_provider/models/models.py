@@ -39,8 +39,15 @@ class DatabaseCassandraMonitor(Document):
     type = StringField(required=False)
     port = IntField(required=False)
     version = StringField(required=False)
+    sgbd = StringField()
+    sgbd_type_id = StringField()
+    topology_type_id = IntField()
+    topology_name = StringField()
+    dns = StringField(required=False)
+    machine = StringField()
+    machine_type = StringField(required=False)
+    machine_type_id = StringField(required=False)
     username = StringField(required=True)
-    password = StringField(required=True)
     cloud_name = StringField(required=False)
     cloud_id = IntField(required=False)
 
@@ -51,16 +58,14 @@ class DatabaseCassandraMonitor(Document):
     @property
     def get_json(self):
         d = {
-            'database_name': self.database_name,
-            'environment': self.environment,
-            'environment_id': self.environment_id,
-            'identifier': self.identifier,
-            'monitor_environment': self.monitor_environment,
-            'monitor_provider': self.monitor_provider,
-            'password': self.password,
+            'cloud': self.cloud_name,
+            'dns': self.dns,
+            'nome': self.database_name,
             'port': self.port,
+            'sgbd': self.sgbd,
+            'topology': self.topology_name,
             'type': self.type,
-            'username': self.username,
+            'machine_type': self.machine_type,
             'version': self.version,
         }
         return {k: v for k, v in d.items() if v}
@@ -72,13 +77,14 @@ class InstanceCassandraMonitor(Document):
     identifier = StringField(required=True)
     database_id = IntField()
     instance_name = StringField()
-    machine = StringField()
+    database_name = StringField()
+    machine_type = StringField(required=False)
+    machine_type_id = StringField(required=False)
     dns = StringField()
     port = StringField()
     active = BooleanField(default=True)
     type_mongodb = StringField()
     disk_path = StringField()
-    type_machine = StringField()
     type_instance = IntField()
 
     @property
@@ -88,19 +94,11 @@ class InstanceCassandraMonitor(Document):
     @property
     def get_json(self):
         d = {
-            'active': self.active,
-            'database_id': self.database_id,
-            'disk_path': self.disk_path,
+            'database_name': self.database_name,
             'dns': self.dns,
-            'identifier': self.identifier,
             'instance_name': self.instance_name,
-            'machine': self.machine,
-            'monitor_environment': self.monitor_environment,
-            'monitor_provider': self.monitor_provider,
-            'port': self.port,
+            'machine_type': self.machine_type,
             'type_instance': self.type_instance,
-            'type_machine': self.type_machine,
-            'type_mongodb': self.type_mongodb,
         }
         return {k: v for k, v in d.items() if v}
 

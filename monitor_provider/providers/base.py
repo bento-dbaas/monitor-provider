@@ -101,7 +101,6 @@ class ProviderBase(object):
         cassandra.port = kwargs.get('port')
         cassandra.type = kwargs.get('type')
         cassandra.username = kwargs.get('username')
-        cassandra.password = kwargs.get('password')
         cassandra.version = kwargs.get('version')
         cassandra.active = True
         self._create_database_cassandra_monitor(cassandra, **kwargs)
@@ -135,22 +134,29 @@ class ProviderBase(object):
         raise NotImplementedError
 
     def create_instance_cassandra_monitor(self, **kwargs):
-        mandatory_fields = ['instance_name', 'machine', 'dns', 'port', 'disk_path', 'database_id']
+        mandatory_fields = ['instance_name', 'machine_type', 'dns', 'port', 'disk_path', 'database_name']
         self.check_mandatory_fields(mandatory_fields, **kwargs)
+
+        database = self.get_database_cassandra_monitor(identifier_or_name=kwargs.get('database_name'))
+        if database is None:
+            raise Exception(
+                "A database named '{}' could not be found".format(kwargs.get('database_name'))
+            )
 
         instance_name = kwargs.get('instance_name')
         if self.get_instance_cassandra_monitor(instance_name):
             raise Exception(
-                "A instance name '{}' already exists".format(instance_name)
+                "A instance named '{}' already exists".format(instance_name)
             )
 
         instance = InstanceCassandraMonitor()
         instance.monitor_provider = self.provider
         instance.monitor_environment = self.environment
         instance.instance_name = instance_name
-        instance.database_id = kwargs.get('database_id')
+        instance.database_id = database.identifier
         instance.port = kwargs.get('port')
-        instance.dn = kwargs.get('dns')
+        instance.dns = kwargs.get('dns')
+        instance.machine_type = kwargs.get('machine_type')
         instance.machine = kwargs.get('machine')
         instance.disk_path = kwargs.get('disk_path')
         instance.active = True
@@ -162,9 +168,9 @@ class ProviderBase(object):
     def _delete_instance_cassandra_monitor(self, identifier):
         raise NotImplementedError
 
-    def delete_instance_cassandra_monitor(self, identifier):
+    def delete_instance_cassandra_monitor(self, instance_name):
         instance = InstanceCassandraMonitor.objects(
-            identifier=identifier,
+            instance_name=instance_name,
             monitor_provider=self.provider,
             monitor_environment=self.environment
         ).get()

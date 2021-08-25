@@ -34,6 +34,7 @@ class DbmonitorOrganizacao(BaseModel):
         table_name = 'dbmonitor_organizacao'
 
 class DbmonitorDatabase(BaseModel):
+    id = PrimaryKeyField(column_name='id')
     nome = CharField()
     maquina = CharField()
     host_zabbix = CharField()
@@ -54,11 +55,11 @@ class DbmonitorDatabase(BaseModel):
     coleta_info_segmentos = BooleanField(default=False)
     coleta_info_backup = BooleanField(default=False)
     coleta_info_key_buffer = BooleanField(default=False)
-    testa_conexao = BooleanField(default=False)
+    testa_conexao = BooleanField(default=True)
     coleta_tamanho_database = BooleanField(default=False)
     flag_autenticacao = BooleanField(default=False)
     database_pai = ForeignKeyField(
-        column_name='database_id',
+        column_name='id',
         field='id',
         model='self',
         null=True)
@@ -67,7 +68,7 @@ class DbmonitorDatabase(BaseModel):
     testa_lock = BooleanField(default=False)
     disk_path = CharField()
     tipo_maquina = CharField()
-    dbaas = BooleanField(default=True)
+    dbaas = BooleanField(default=False)
     organizacao = ForeignKeyField(
         column_name='organizacao_id',
         field='id',
