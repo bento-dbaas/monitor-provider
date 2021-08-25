@@ -111,9 +111,9 @@ class ProviderBase(object):
     def _delete_database_cassandra_monitor(self, cassandra):
         raise NotImplementedError
 
-    def delete_database_cassandra_monitor(self, identifier):
+    def delete_database_cassandra_monitor(self, database_name):
         cassandra = DatabaseCassandraMonitor.objects(
-            identifier=identifier,
+            database_name=database_name,
             monitor_provider=self.provider,
             monitor_environment=self.environment
         ).get()
@@ -134,7 +134,7 @@ class ProviderBase(object):
         raise NotImplementedError
 
     def create_instance_cassandra_monitor(self, **kwargs):
-        mandatory_fields = ['instance_name', 'machine_type', 'dns', 'port', 'disk_path', 'database_name']
+        mandatory_fields = ['instance_name', 'machine', 'dns', 'port', 'disk_path', 'database_name']
         self.check_mandatory_fields(mandatory_fields, **kwargs)
 
         database = self.get_database_cassandra_monitor(identifier_or_name=kwargs.get('database_name'))
@@ -156,7 +156,6 @@ class ProviderBase(object):
         instance.database_id = database.identifier
         instance.port = kwargs.get('port')
         instance.dns = kwargs.get('dns')
-        instance.machine_type = kwargs.get('machine_type')
         instance.machine = kwargs.get('machine')
         instance.disk_path = kwargs.get('disk_path')
         instance.active = True

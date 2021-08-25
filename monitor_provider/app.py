@@ -321,14 +321,14 @@ def get_database_cassandra_monitor(provider_name, env, identifier_or_name):
 
 
 @app.route(
-    "/<string:provider_name>/<string:env>/database_cassandra/<string:identifier>",
+    "/<string:provider_name>/<string:env>/database_cassandra/<string:database_name>",
     methods=['DELETE'])
 @auth.login_required
-def delete_database_cassandra_monitor(provider_name, env, identifier):
+def delete_database_cassandra_monitor(provider_name, env, database_name):
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
-        provider.delete_database_cassandra_monitor(identifier)
+        provider.delete_database_cassandra_monitor(database_name)
     except Exception as e:
         print_exc()
         return response_invalid_request(str(e))
