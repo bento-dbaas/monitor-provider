@@ -102,3 +102,35 @@ curl -X GET '<monitor-provider_endpoint>/<provider_name>/<env>/web/identifier_or
 ```
 curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/web/identifier'
 ```
+
+### Database Cassandra Monitor (DBMonitor only)
+###### ADD
+```
+curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/database_cassandra/new' -H 'Content-Type: application/json' -d '{"database_name": "NAME", "type": "TYPE", "port": "PORT", "username": "USERNAME", "password": "PASSWORD", "version": "VERSION", "cloud_name": "CLOUD_NAME"}'
+```
+
+###### GET
+```
+curl -x GET '<monitor-provider_endpoint>/<provider_name>/<env>/database_cassandra/identifier_or_name'
+```
+
+###### DELETE
+```
+curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/database_cassandra/database_name'
+```
+
+### Instance Cassandra Monitor (DBMonitor only)
+###### ADD
+```
+curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/new' -H 'Content-Type: application/json' -d '{"instance_name": "INSTANCE_NAME", "dns": "DNS", "port": "PORT", "database_name": "DATABASE_NAME", "disk_path": "DISK_PATH", "machine": "MACHINE"}'
+```
+
+###### GET
+```
+curl -x GET '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/identifier_or_name'
+```
+
+###### DELETE
+```
+curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/instance_name'
+```
