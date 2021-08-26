@@ -49,6 +49,9 @@ class CredentialDBMonitor(CredentialBase):
     def default_environment(self):
         return self.content['default_environment']
 
+    @property
+    def decode_key(self):
+        return self.content['decode_key']
 
 class CredentialAddDBMonitor(CredentialAdd):
 
@@ -57,5 +60,5 @@ class CredentialAddDBMonitor(CredentialAdd):
         return [
             'user', 'password', 'host', 'port', 'database',
             'default_cloud_name', 'default_organization_name',
-            'default_machine_type', 'default_environment'
+            'default_machine_type', 'default_environment', 'decode_key'
         ]

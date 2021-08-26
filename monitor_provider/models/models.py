@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, IntField
+from mongoengine import Document, StringField, IntField, BooleanField
 
 
 class ServiceMonitor(Document):
@@ -24,6 +24,81 @@ class ServiceMonitor(Document):
             'environment': self.environment,
             'environment_id': self.environment_id,
             'url': self.url,
+        }
+        return {k: v for k, v in d.items() if v}
+
+
+class DatabaseCassandraMonitor(Document):
+    monitor_provider = StringField(required=True)
+    monitor_environment = StringField(required=True)
+    active = BooleanField(required=True)
+    identifier = StringField(required=True)
+    environment = StringField(required=False)
+    environment_id = StringField(required=False)
+    database_name = StringField(required=False)
+    type = StringField(required=False)
+    port = IntField(required=False)
+    version = StringField(required=False)
+    sgbd = StringField()
+    sgbd_type_id = StringField()
+    topology_type_id = IntField()
+    topology_name = StringField()
+    dns = StringField(required=False)
+    machine = StringField()
+    machine_type = StringField(required=False)
+    machine_type_id = StringField(required=False)
+    username = StringField(required=True)
+    cloud_name = StringField(required=False)
+    cloud_id = IntField(required=False)
+
+    @property
+    def uuid(self):
+        return str(self.pk)
+
+    @property
+    def get_json(self):
+        d = {
+            'cloud': self.cloud_name,
+            'dns': self.dns,
+            'nome': self.database_name,
+            'port': self.port,
+            'sgbd': self.sgbd,
+            'topology': self.topology_name,
+            'type': self.type,
+            'machine_type': self.machine_type,
+            'version': self.version,
+        }
+        return {k: v for k, v in d.items() if v}
+
+
+class InstanceCassandraMonitor(Document):
+    monitor_provider = StringField(required=True)
+    monitor_environment = StringField(required=True)
+    identifier = StringField(required=True)
+    database_id = IntField()
+    instance_name = StringField()
+    database_name = StringField()
+    machine_type = StringField(required=False)
+    machine_type_id = StringField(required=False)
+    dns = StringField()
+    port = StringField()
+    active = BooleanField(default=True)
+    type_mongodb = StringField()
+    disk_path = StringField()
+    type_instance = IntField()
+
+    @property
+    def uuid(self):
+        return str(self.pk)
+
+    @property
+    def get_json(self):
+        d = {
+            'database_name': self.database_name,
+            'dns': self.dns,
+            'instance_name': self.instance_name,
+            'machine_type': self.machine_type,
+            'type_instance': self.type_instance,
         }
         return {k: v for k, v in d.items() if v}
 

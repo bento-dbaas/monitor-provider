@@ -7,7 +7,9 @@ from monitor_provider.models.dbmonitor_models import (
     DbmonitorCloud,
     DbmonitorServicoServidores,
     DbmonitorOrganizacao,
-    DbmonitorServidor)
+    DbmonitorServidor,
+    DbmonitorDatabase,
+    DbmonitorInstancia)
 from peewee import MySQLDatabase, fn
 from slugify import slugify
 
@@ -31,6 +33,17 @@ TIPO_MAQUINA = {
 }
 TIPO_MAQUINA_LIST = (MAQUINA_FISICA_DESC, MAQUINA_VIRTUAL_DESC)
 
+SGBD_CASSANDRA = 'C'
+SGBD_CHOICES = {
+    SGBD_CASSANDRA: "Cassandra",
+}
+
+CASSANDRA_CLUSTER = 18
+TOPOLOGIA_CHOICES = {
+    CASSANDRA_CLUSTER: "Cassandra Cluster",
+}
+
+INSTANCIA_CASSANDRA = 18
 
 
 class ProviderDBMonitor(ProviderBase):
@@ -55,6 +68,24 @@ class ProviderDBMonitor(ProviderBase):
             self._dbmonitor_database = MySQLDatabase(
                 **self.credential.database_endpoint)
         return self._dbmonitor_database
+
+    def get_database_monitor_dns(self, database_id):
+        DbmonitorDatabase.bind(self.dbmonitor_database)
+        dns = DbmonitorDatabase.get_by_id(database_id).dns
+
+        try:
+            return dns.split(',')
+        except AttributeError:
+            return []
+
+    def set_database_monitor_dns(self, database_id, dns):
+        dns_str = ','.join(dns)
+        DbmonitorDatabase.bind(self.dbmonitor_database)
+        DbmonitorDatabase.update(
+            {DbmonitorDatabase.dns: dns_str}
+        ).where(
+            DbmonitorDatabase.id == database_id
+        ).execute()
 
     @property
     def credential(self):
@@ -89,6 +120,100 @@ class ProviderDBMonitor(ProviderBase):
         DbmonitorServico.bind(self.dbmonitor_database)
         DbmonitorServico.delete().where(
             DbmonitorServico.id == service.identifier).execute()
+
+    def _create_database_cassandra_monitor(self, cassandra, **kwargs):
+        cassandra.cloud_name = kwargs.get('cloud_name', None)
+
+        if not cassandra.cloud_name:
+            cassandra.cloud_name = self.credential.default_cloud_name
+        cassandra.cloud_id  = self.get_cloud_by_name(cassandra.cloud_name)
+
+        if not cassandra.machine_type:
+            cassandra.machine_type = self.credential.default_machine_type
+        machine_type = slugify(cassandra.machine_type)
+
+        if machine_type not in TIPO_MAQUINA.keys():
+            msg = "machine_type must be in this list: {}".format(
+                TIPO_MAQUINA_LIST)
+            raise Exception(msg)
+        cassandra.machine_type_id = TIPO_MAQUINA[machine_type]
+
+        cassandra.topology_type_id = CASSANDRA_CLUSTER
+        cassandra.topology_name = TOPOLOGIA_CHOICES[cassandra.topology_type_id]
+
+        cassandra.sgbd_type_id = SGBD_CASSANDRA
+        cassandra.sgbd = SGBD_CHOICES[cassandra.sgbd_type_id]
+
+        password = fn.ENCODE(
+            kwargs.get('password'), self.credential.decode_key
+        )
+
+        DbmonitorDatabase.bind(self.dbmonitor_database)
+        database = DbmonitorDatabase(
+            ativo=cassandra.active,
+            nome=cassandra.database_name,
+            tipo=cassandra.type,
+            tipo_maquina = cassandra.machine_type_id,
+            porta=cassandra.port,
+            versao=cassandra.version,
+            usuario=cassandra.username,
+            senha=password,
+            cloud_id=cassandra.cloud_id,
+            sgbd=cassandra.sgbd_type_id,
+            topologia=cassandra.topology_type_id
+        )
+
+        database.save()
+        cassandra.identifier = str(database.id)
+
+    def _delete_database_cassandra_monitor(self, cassandra):
+        DbmonitorDatabase.bind(self.dbmonitor_database)
+        DbmonitorDatabase.update({DbmonitorDatabase.ativo: False}).where(
+            DbmonitorDatabase.id == int(cassandra.identifier)
+        ).execute()
+
+    def _create_instance_cassandra_monitor(self, instance, **kwargs):
+        if not instance.machine_type:
+            instance.machine_type = self.credential.default_machine_type
+        machine_type = slugify(instance.machine_type)
+
+        if machine_type not in TIPO_MAQUINA.keys():
+            msg = "machine_type must be in this list: {}".format(
+                TIPO_MAQUINA_LIST)
+            raise Exception(msg)
+        instance.machine_type_id = TIPO_MAQUINA[machine_type]
+
+        DbmonitorInstancia.bind(self.dbmonitor_database)
+        db_instance = DbmonitorInstancia(
+            database_id=instance.database_id,
+            dns=instance.dns,
+            tipo_mongodb=None,
+            disk_path=instance.disk_path,
+            tipo_maquina=instance.machine_type_id,
+            tipo_instancia=INSTANCIA_CASSANDRA,
+            nome=instance.instance_name,
+            maquina=instance.machine,
+            porta=instance.port,
+            ativo=instance.active,
+        )
+
+        db_instance.save()
+
+        dns_list = self.get_database_monitor_dns(instance.database_id)
+        dns_list.append(instance.dns)
+        self.set_database_monitor_dns(instance.database_id, dns_list)
+
+        instance.identifier = str(db_instance.id)
+
+    def _delete_instance_cassandra_monitor(self, instance):
+        DbmonitorInstancia.bind(self.dbmonitor_database)
+        DbmonitorInstancia.update({DbmonitorInstancia.ativo: False}).where(
+            DbmonitorInstancia.id == int(instance.identifier)
+        ).execute()
+
+        dns_list = self.get_database_monitor_dns(instance.database_id)
+        dns_list.remove(instance.dns)
+        self.set_database_monitor_dns(instance.database_id, dns_list)
 
     def _create_host_monitor(self, host, **kwargs):
         mandatory_fields = ['dns', 'ip', 'host_name', 'so_name', 'service_name']
