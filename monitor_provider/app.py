@@ -381,3 +381,52 @@ def delete_instance_cassandra_monitor(provider_name, env, instance_name):
         print_exc()
         return response_invalid_request(str(e))
     return response_ok()
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/tcp/new",
+    methods=['POST'])
+@auth.login_required
+def create_tcp_monitor(provider_name, env):
+    data = json.loads(request.data or 'null')
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        tcp = provider.create_tcp_monitor(**data)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+    return response_created(success=True, identifier=tcp.identifier)
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/tcp/<string:identifier_or_name>",
+    methods=['GET'])
+@auth.login_required
+def get_tcp_monitor(provider_name, env, identifier_or_name):
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+
+    tcp = provider.get_tcp_monitor(identifier_or_name)
+    if not tcp:
+        return response_not_found(identifier_or_name)
+    return response_ok(**tcp.get_json)
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/tcp/<string:identifier>",
+    methods=['DELETE'])
+@auth.login_required
+def delete_tcp_monitor(provider_name, env, identifier):
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        provider.delete_tcp_monitor(identifier)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+    return response_ok()

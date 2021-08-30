@@ -3,6 +3,7 @@ from mongoengine.queryset.visitor import Q
 from monitor_provider.models.models import (
     ServiceMonitor,
     HostMonitor,
+    TcpMonitor,
     WebMonitor,
     DatabaseCassandraMonitor,
     InstanceCassandraMonitor)
@@ -296,3 +297,43 @@ class ProviderBase(object):
         ).get()
         self._delete_web_monitor(host)
         host.delete()
+
+    def _create_tcp_monitor(self, tcp, **kwargs):
+        raise NotImplementedError
+
+    def create_tcp_monitor(self, **kwargs):
+        mandatory_fields = ["host", "port"]
+        self.check_mandatory_fields(mandatory_fields, **kwargs)
+
+        tcp = TcpMonitor()
+        tcp.monitor_provider = self.provider
+        tcp.monitor_environment = self.environment
+        tcp.host = kwargs.get("host")
+        tcp.port = kwargs.get("port")
+
+        self._create_tcp_monitor(tcp, **kwargs)
+
+        tcp.save()
+        return tcp
+
+    def _delete_tcp_monitor(self, tcp):
+        raise NotImplementedError
+
+    def delete_tcp_monitor(self, identifier):
+        tcp = TcpMonitor.objects(
+            identifier=identifier,
+            monitor_provider=self.provider,
+            monitor_environment=self.environment
+        ).get()
+        self._delete_tcp_monitor(tcp)
+        tcp.delete()
+
+    def get_tcp_monitor(self, identifier_or_name):
+        try:
+            return TcpMonitor.objects(
+                Q(identifier=identifier_or_name) | Q(host=identifier_or_name),
+                monitor_provider=self.provider,
+                monitor_environment=self.environment
+            ).get()
+        except TcpMonitor.DoesNotExist:
+            return None
