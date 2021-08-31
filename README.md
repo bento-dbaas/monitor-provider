@@ -134,3 +134,23 @@ curl -x GET '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandr
 ```
 curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/instance_name'
 ```
+
+### TCPMonitor (Zabbix)
+###### ADD
+```
+curl -X POST '<monitor-provider_endpoint>/zabbix/<env>/tcp/new' -H 'Content-Type: application/json' -d '{"host": "host", "port": "port"}'
+```
+
+Mandatory fields | Optional fields
+------------ | -------------
+host, port | environment, locality, alarm, doc, hostgroups, notes, notification_email, notification_slack, zbx_proxy
+
+###### GET
+```
+curl -X GET '<monitor-provider_endpoint>/zabbix/<env>/tcp/identifier'
+```
+
+###### DELETE
+```
+curl -X DELETE '<monitor-provider_endpoint>/zabbix/<env>/tcp/identifier'
+```
