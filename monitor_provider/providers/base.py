@@ -310,6 +310,15 @@ class ProviderBase(object):
         tcp.monitor_environment = self.environment
         tcp.host = kwargs.get("host")
         tcp.port = kwargs.get("port")
+        tcp.environment = kwargs.get("environment")
+        tcp.locality = kwargs.get("locality")
+        tcp.alarm = kwargs.get("alarm")
+        tcp.doc = kwargs.get("doc")
+        tcp.hostgroups = kwargs.get("hostgroups")
+        tcp.notes = kwargs.get("notes")
+        tcp.notification_email = kwargs.get("notification_email")
+        tcp.notification_slack = kwargs.get("notification_slack")
+        tcp.zbx_proxy = kwargs.get("zbx_proxy")
 
         self._create_tcp_monitor(tcp, **kwargs)
 
@@ -331,7 +340,7 @@ class ProviderBase(object):
     def get_tcp_monitor(self, identifier_or_name):
         try:
             return TcpMonitor.objects(
-                Q(identifier=identifier_or_name) | Q(host=identifier_or_name),
+                identifier=identifier_or_name,
                 monitor_provider=self.provider,
                 monitor_environment=self.environment
             ).get()

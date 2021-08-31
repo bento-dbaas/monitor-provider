@@ -91,13 +91,17 @@ class ProviderZabbix(ProviderBase):
         self.zapi.globo.deleteMonitors(**data)
 
     def _create_tcp_monitor(self, tcp, **kwargs):
+        if not tcp.environment:
+            tcp.environment = self.credential.default_environment
+
         if not tcp.locality:
             tcp.locality = self.credential.default_locality
 
-        tcp.port = kwargs.get('port')
-        tcp.alarm = self.credential.alarm
-        tcp.environment = self.credential.default_environment
-        tcp.hostgroups = self.credential.default_hostgroups
+        if not tcp.hostgroups:
+            tcp.hostgroups = self.credential.default_hostgroups
+
+        if not tcp.alarm:
+            tcp.alarm = self.credential.alarm
 
         tcp.identifier = "tcp_{}-{}".format(tcp.host, tcp.port)
 
@@ -109,5 +113,11 @@ class ProviderZabbix(ProviderBase):
             'port': tcp.port,
             'alarm': tcp.alarm
         }
+
+        opt = ('doc', 'notes', 'notification_email', 'notification_slack', 'zbx_proxy')
+        for option in opt:
+            if getattr(tcp, option) is None:
+                continue
+            data[option] = getattr(tcp, option)
 
         self.zapi.globo.createTCPMonitors(**data)

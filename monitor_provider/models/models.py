@@ -189,6 +189,7 @@ class WebMonitor(Document):
 class TcpMonitor(Document):
     monitor_provider = StringField(required=True)
     monitor_environment = StringField(required=True)
+    environment = StringField(required=True)
     identifier = StringField(required=True)
     host = StringField(required=True)
     port = StringField(required=True)
@@ -205,6 +206,7 @@ class TcpMonitor(Document):
         d = {
             'monitor_provider': self.monitor_provider,
             'monitor_environment': self.monitor_environment,
+            'environment': self.environment,
             'identifier': self.identifier,
             'host': self.host,
             'port': self.port,
