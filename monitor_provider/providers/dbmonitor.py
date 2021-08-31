@@ -122,7 +122,8 @@ class ProviderDBMonitor(ProviderBase):
             DbmonitorServico.id == service.identifier).execute()
 
     def _create_database_cassandra_monitor(self, cassandra, **kwargs):
-        cassandra.cloud_name = kwargs.get('cloud_name', None)
+        if not cassandra.type:
+            cassandra.type = self.credential.environment
 
         if not cassandra.cloud_name:
             cassandra.cloud_name = self.credential.default_cloud_name
@@ -140,7 +141,6 @@ class ProviderDBMonitor(ProviderBase):
 
         cassandra.topology_type_id = CASSANDRA_CLUSTER
         cassandra.topology_name = TOPOLOGIA_CHOICES[cassandra.topology_type_id]
-
         cassandra.sgbd_type_id = SGBD_CASSANDRA
         cassandra.sgbd = SGBD_CHOICES[cassandra.sgbd_type_id]
 
