@@ -109,6 +109,10 @@ curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/web/identifier
 curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/database_cassandra/new' -H 'Content-Type: application/json' -d '{"database_name": "NAME", "type": "TYPE", "port": "PORT", "username": "USERNAME", "password": "PASSWORD", "version": "VERSION", "cloud_name": "CLOUD_NAME"}'
 ```
 
+Mandatory fields | Optional fields
+------------ | -------------
+database_name, port, version, username, password | environment, cloud_name, machine_type
+
 ###### GET
 ```
 curl -x GET '<monitor-provider_endpoint>/<provider_name>/<env>/database_cassandra/identifier_or_name'
