@@ -129,6 +129,10 @@ curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/database_cassa
 curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/new' -H 'Content-Type: application/json' -d '{"instance_name": "INSTANCE_NAME", "dns": "DNS", "port": "PORT", "database_name": "DATABASE_NAME", "disk_path": "DISK_PATH", "machine": "MACHINE"}'
 ```
 
+Mandatory fields | Optional fields
+------------ | -------------
+dns, port, instance_name, database_name | machine, machine_type, disk_path
+
 ###### GET
 ```
 curl -x GET '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/identifier_or_name'

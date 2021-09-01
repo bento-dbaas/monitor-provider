@@ -137,7 +137,7 @@ class ProviderBase(object):
         raise NotImplementedError
 
     def create_instance_cassandra_monitor(self, **kwargs):
-        mandatory_fields = ['instance_name', 'machine', 'dns', 'port', 'disk_path', 'database_name']
+        mandatory_fields = ['instance_name', 'dns', 'port', 'database_name']
         self.check_mandatory_fields(mandatory_fields, **kwargs)
 
         database = self.get_database_cassandra_monitor(identifier_or_name=kwargs.get('database_name'))
@@ -160,6 +160,7 @@ class ProviderBase(object):
         instance.port = kwargs.get('port')
         instance.dns = kwargs.get('dns')
         instance.machine = kwargs.get('machine')
+        instance.machine_type = kwargs.get('machine_type')
         instance.disk_path = kwargs.get('disk_path')
         instance.active = True
         self._create_instance_cassandra_monitor(instance, **kwargs)
