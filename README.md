@@ -109,6 +109,10 @@ curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/web/identifier
 curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/database_cassandra/new' -H 'Content-Type: application/json' -d '{"database_name": "NAME", "type": "TYPE", "port": "PORT", "username": "USERNAME", "password": "PASSWORD", "version": "VERSION", "cloud_name": "CLOUD_NAME"}'
 ```
 
+Mandatory fields | Optional fields
+------------ | -------------
+database_name, port, version, username, password | environment, cloud_name, machine_type
+
 ###### GET
 ```
 curl -x GET '<monitor-provider_endpoint>/<provider_name>/<env>/database_cassandra/identifier_or_name'
@@ -125,6 +129,10 @@ curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/database_cassa
 curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/new' -H 'Content-Type: application/json' -d '{"instance_name": "INSTANCE_NAME", "dns": "DNS", "port": "PORT", "database_name": "DATABASE_NAME", "disk_path": "DISK_PATH", "machine": "MACHINE"}'
 ```
 
+Mandatory fields | Optional fields
+------------ | -------------
+dns, port, instance_name, database_name | machine, machine_type, disk_path
+
 ###### GET
 ```
 curl -x GET '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/identifier_or_name'
@@ -133,4 +141,24 @@ curl -x GET '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandr
 ###### DELETE
 ```
 curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/instance_name'
+```
+
+### TCPMonitor (Zabbix)
+###### ADD
+```
+curl -X POST '<monitor-provider_endpoint>/zabbix/<env>/tcp/new' -H 'Content-Type: application/json' -d '{"host": "host", "port": "port"}'
+```
+
+Mandatory fields | Optional fields
+------------ | -------------
+host, port | environment, locality, alarm, doc, hostgroups, notes, notification_email, notification_slack, zbx_proxy
+
+###### GET
+```
+curl -X GET '<monitor-provider_endpoint>/zabbix/<env>/tcp/identifier'
+```
+
+###### DELETE
+```
+curl -X DELETE '<monitor-provider_endpoint>/zabbix/<env>/tcp/identifier'
 ```

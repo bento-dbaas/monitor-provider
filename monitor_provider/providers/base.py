@@ -3,6 +3,7 @@ from mongoengine.queryset.visitor import Q
 from monitor_provider.models.models import (
     ServiceMonitor,
     HostMonitor,
+    TcpMonitor,
     WebMonitor,
     DatabaseCassandraMonitor,
     InstanceCassandraMonitor)
@@ -85,7 +86,7 @@ class ProviderBase(object):
         raise NotImplementedError
 
     def create_database_cassandra_monitor(self, **kwargs):
-        mandatory_fields = ['database_name', 'type', 'port', 'version', 'username', 'password', 'cloud_name']
+        mandatory_fields = ['database_name', 'port', 'version', 'username', 'password']
         self.check_mandatory_fields(mandatory_fields, **kwargs)
 
         database_name = kwargs.get('database_name')
@@ -99,10 +100,12 @@ class ProviderBase(object):
         cassandra.monitor_environment = self.environment
         cassandra.database_name = database_name
         cassandra.port = kwargs.get('port')
-        cassandra.type = kwargs.get('type')
         cassandra.username = kwargs.get('username')
         cassandra.version = kwargs.get('version')
         cassandra.active = True
+        cassandra.type = kwargs.get('environment')
+        cassandra.cloud_name = kwargs.get('cloud_name')
+        cassandra.machine_type = kwargs.get('machine_type')
         self._create_database_cassandra_monitor(cassandra, **kwargs)
 
         cassandra.save()
@@ -134,7 +137,7 @@ class ProviderBase(object):
         raise NotImplementedError
 
     def create_instance_cassandra_monitor(self, **kwargs):
-        mandatory_fields = ['instance_name', 'machine', 'dns', 'port', 'disk_path', 'database_name']
+        mandatory_fields = ['instance_name', 'dns', 'port', 'database_name']
         self.check_mandatory_fields(mandatory_fields, **kwargs)
 
         database = self.get_database_cassandra_monitor(identifier_or_name=kwargs.get('database_name'))
@@ -157,6 +160,7 @@ class ProviderBase(object):
         instance.port = kwargs.get('port')
         instance.dns = kwargs.get('dns')
         instance.machine = kwargs.get('machine')
+        instance.machine_type = kwargs.get('machine_type')
         instance.disk_path = kwargs.get('disk_path')
         instance.active = True
         self._create_instance_cassandra_monitor(instance, **kwargs)
@@ -296,3 +300,52 @@ class ProviderBase(object):
         ).get()
         self._delete_web_monitor(host)
         host.delete()
+
+    def _create_tcp_monitor(self, tcp, **kwargs):
+        raise NotImplementedError
+
+    def create_tcp_monitor(self, **kwargs):
+        mandatory_fields = ["host", "port"]
+        self.check_mandatory_fields(mandatory_fields, **kwargs)
+
+        tcp = TcpMonitor()
+        tcp.monitor_provider = self.provider
+        tcp.monitor_environment = self.environment
+        tcp.host = kwargs.get("host")
+        tcp.port = kwargs.get("port")
+        tcp.environment = kwargs.get("environment")
+        tcp.locality = kwargs.get("locality")
+        tcp.alarm = kwargs.get("alarm")
+        tcp.doc = kwargs.get("doc")
+        tcp.hostgroups = kwargs.get("hostgroups")
+        tcp.notes = kwargs.get("notes")
+        tcp.notification_email = kwargs.get("notification_email")
+        tcp.notification_slack = kwargs.get("notification_slack")
+        tcp.zbx_proxy = kwargs.get("zbx_proxy")
+
+        self._create_tcp_monitor(tcp, **kwargs)
+
+        tcp.save()
+        return tcp
+
+    def _delete_tcp_monitor(self, tcp):
+        raise NotImplementedError
+
+    def delete_tcp_monitor(self, identifier):
+        tcp = TcpMonitor.objects(
+            identifier=identifier,
+            monitor_provider=self.provider,
+            monitor_environment=self.environment
+        ).get()
+        self._delete_tcp_monitor(tcp)
+        tcp.delete()
+
+    def get_tcp_monitor(self, identifier_or_name):
+        try:
+            return TcpMonitor.objects(
+                identifier=identifier_or_name,
+                monitor_provider=self.provider,
+                monitor_environment=self.environment
+            ).get()
+        except TcpMonitor.DoesNotExist:
+            return None
