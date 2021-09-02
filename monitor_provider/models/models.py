@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, IntField, BooleanField
+from mongoengine import Document, StringField, IntField, BooleanField, ListField
 
 
 class ServiceMonitor(Document):
@@ -161,7 +161,7 @@ class WebMonitor(Document):
     environment = StringField(required=False)
     locality = StringField(required=False)
     url = StringField(required=False)
-    hostgroups = StringField(required=False)
+    hostgroups = ListField(required=False)
     required_string = StringField(required=False)
     alarm = StringField(required=False)
 
@@ -195,7 +195,7 @@ class TcpMonitor(Document):
     port = StringField(required=True)
     locality = StringField(required=True)
     alarm = StringField(required=False)
-    hostgroups = StringField(required=False)
+    hostgroups = ListField(required=False)
 
     @property
     def uuid(self):
