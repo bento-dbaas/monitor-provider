@@ -44,7 +44,7 @@ curl -X GET '<monitor-provider_endpoint>/<provider_name>/env/credential'
 
 ###### ADD
 ```
-curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/service/new' -H 'Content-Type: application/json' -d '{"service_name": "service name",  "url": "url"}
+curl -X POST -u app_username:app_password'<monitor-provider_endpoint>/<provider_name>/<env>/service/new' -H 'Content-Type: application/json' -d '{"service_name": "service name","url": "url"}
 ```
 Mandatory fields | Optional fields
 ------------ | -------------
@@ -53,15 +53,18 @@ service_name | url
 
 ###### GET
 ```
-curl -X GET '<monitor-provider_endpoint>/<provider_name>/<env>/service/identifier_or_name'
+curl -X GET -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/service/identifier_or_name'
 ```
 
 ###### DELETE
 ```
-curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/service/identifier'
+curl -X DELETE -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/service/identifier'
 ```
 
 ### Host Monitor (available on both: DBMonitor and Zabbix)
+
+Don't forget to add `-u app_username:app_password`on DBMonitor requests.
+
 ###### ADD
 
 ```
@@ -106,7 +109,7 @@ curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/web/identifier
 ### Database Cassandra Monitor (DBMonitor only)
 ###### ADD
 ```
-curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/database_cassandra/new' -H 'Content-Type: application/json' -d '{"database_name": "NAME", "type": "TYPE", "port": "PORT", "username": "USERNAME", "password": "PASSWORD", "version": "VERSION", "cloud_name": "CLOUD_NAME"}'
+curl -X POST -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/database_cassandra/new' -H 'Content-Type: application/json' -d '{"database_name": "NAME", "environment": "ENVIRONMENT", "port": "PORT", "username": "USERNAME", "password": "PASSWORD", "version": "VERSION", "cloud_name": "CLOUD_NAME"}'
 ```
 
 Mandatory fields | Optional fields
@@ -115,18 +118,18 @@ database_name, port, version, username, password | environment, cloud_name, mach
 
 ###### GET
 ```
-curl -x GET '<monitor-provider_endpoint>/<provider_name>/<env>/database_cassandra/identifier_or_name'
+curl -X GET -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/database_cassandra/identifier_or_name'
 ```
 
 ###### DELETE
 ```
-curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/database_cassandra/database_name'
+curl -X DELETE -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/database_cassandra/database_name'
 ```
 
 ### Instance Cassandra Monitor (DBMonitor only)
 ###### ADD
 ```
-curl -X POST '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/new' -H 'Content-Type: application/json' -d '{"instance_name": "INSTANCE_NAME", "dns": "DNS", "port": "PORT", "database_name": "DATABASE_NAME", "disk_path": "DISK_PATH", "machine": "MACHINE"}'
+curl -X POST -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/new' -H 'Content-Type: application/json' -d '{"instance_name": "INSTANCE_NAME", "dns": "DNS", "port": "PORT", "database_name": "DATABASE_NAME", "disk_path": "DISK_PATH", "machine": "MACHINE"}'
 ```
 
 Mandatory fields | Optional fields
@@ -135,12 +138,12 @@ dns, port, instance_name, database_name | machine, machine_type, disk_path
 
 ###### GET
 ```
-curl -x GET '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/identifier_or_name'
+curl -x GET -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/identifier_or_name'
 ```
 
 ###### DELETE
 ```
-curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/instance_name'
+curl -X DELETE -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/instance_name'
 ```
 
 ### TCPMonitor (Zabbix)
