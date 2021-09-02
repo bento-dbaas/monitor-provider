@@ -138,7 +138,7 @@ dns, port, instance_name, database_name | machine, machine_type, disk_path
 
 ###### GET
 ```
-curl -x GET -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/identifier_or_name'
+curl -X GET -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/identifier_or_name'
 ```
 
 ###### DELETE
