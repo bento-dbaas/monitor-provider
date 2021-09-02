@@ -123,7 +123,7 @@ class ProviderDBMonitor(ProviderBase):
 
     def _create_database_cassandra_monitor(self, cassandra, **kwargs):
         if not cassandra.type:
-            cassandra.type = self.credential.environment
+            cassandra.type = self.credential.default_environment
 
         if not cassandra.cloud_name:
             cassandra.cloud_name = self.credential.default_cloud_name
