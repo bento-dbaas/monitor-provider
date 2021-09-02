@@ -23,6 +23,16 @@ TIPO_AMBIENTE = {
 }
 TIPO_AMBIENTE_LIST = (AMBIENTE_PRODUCAO_DESC, AMBIENTE_DEV_DESC)
 
+DATABASE_PRODUCAO = 'P'
+DATABASE_DEV = 'Q'
+DATABASE_PRODUCAO_DESC = 'PROD'
+DATABASE_DEV_DESC = 'DEV'
+AMBIENTE_DATABASE = {
+    slugify(DATABASE_PRODUCAO_DESC): DATABASE_PRODUCAO,
+    slugify(DATABASE_DEV_DESC): DATABASE_DEV
+}
+TIPO_AMBIENTE_DATABASE = (DATABASE_PRODUCAO_DESC, DATABASE_DEV_DESC)
+
 MAQUINA_FISICA = '1'
 MAQUINA_VIRTUAL = '2'
 MAQUINA_FISICA_DESC = "Máquina Física"
@@ -122,8 +132,14 @@ class ProviderDBMonitor(ProviderBase):
             DbmonitorServico.id == service.identifier).execute()
 
     def _create_database_cassandra_monitor(self, cassandra, **kwargs):
-        if not cassandra.type:
-            cassandra.type = self.credential.default_environment
+        if not cassandra.environment:
+            cassandra.environment = self.credential.default_environment
+        environment = slugify(cassandra.environment)
+        if environment not in AMBIENTE_DATABASE.keys():
+            msg = "Environment must be in this list: {}".format(
+                TIPO_AMBIENTE_DATABASE)
+            raise Exception(msg)
+        cassandra.environment_id = AMBIENTE_DATABASE[environment]
 
         if not cassandra.cloud_name:
             cassandra.cloud_name = self.credential.default_cloud_name
@@ -152,7 +168,7 @@ class ProviderDBMonitor(ProviderBase):
         database = DbmonitorDatabase(
             ativo=cassandra.active,
             nome=cassandra.database_name,
-            tipo=cassandra.type,
+            tipo=cassandra.environment_id,
             tipo_maquina = cassandra.machine_type_id,
             porta=cassandra.port,
             versao=cassandra.version,

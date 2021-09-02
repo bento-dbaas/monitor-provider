@@ -64,7 +64,7 @@ class DatabaseCassandraMonitor(Document):
             'port': self.port,
             'sgbd': self.sgbd,
             'topology': self.topology_name,
-            'type': self.type,
+            'environment': self.environment,
             'machine_type': self.machine_type,
             'version': self.version,
         }

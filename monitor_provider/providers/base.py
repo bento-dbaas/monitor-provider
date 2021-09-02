@@ -103,7 +103,7 @@ class ProviderBase(object):
         cassandra.username = kwargs.get('username')
         cassandra.version = kwargs.get('version')
         cassandra.active = True
-        cassandra.type = kwargs.get('environment')
+        cassandra.environment = kwargs.get('environment')
         cassandra.cloud_name = kwargs.get('cloud_name')
         cassandra.machine_type = kwargs.get('machine_type')
         self._create_database_cassandra_monitor(cassandra, **kwargs)
