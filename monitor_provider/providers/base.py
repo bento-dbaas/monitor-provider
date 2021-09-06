@@ -126,7 +126,7 @@ class ProviderBase(object):
         self._delete_database_cassandra_monitor(cassandra)
         cassandra.delete()
 
-    def get_instance_cassandra_monitor(self, identifier_or_name):
+    def get_instance_monitor(self, identifier_or_name):
         try:
             return InstanceMonitor.objects(
                 Q(identifier=identifier_or_name) | Q(instance_name=identifier_or_name),
@@ -150,7 +150,7 @@ class ProviderBase(object):
             )
 
         instance_name = kwargs.get('instance_name')
-        if self.get_instance_cassandra_monitor(instance_name):
+        if self.get_instance_monitor(instance_name):
             raise Exception(
                 "A instance named '{}' already exists".format(instance_name)
             )
