@@ -182,10 +182,10 @@ class ProviderDBMonitor(ProviderBase):
         database.save()
         cassandra.identifier = str(database.id)
 
-    def _delete_database_cassandra_monitor(self, cassandra):
+    def _delete_database_monitor(self, sgbd):
         DbmonitorDatabase.bind(self.dbmonitor_database)
         DbmonitorDatabase.update({DbmonitorDatabase.ativo: False}).where(
-            DbmonitorDatabase.id == int(cassandra.identifier)
+            DbmonitorDatabase.id == int(sgbd.identifier)
         ).execute()
 
     def _create_instance_cassandra_monitor(self, instance, **kwargs):
@@ -221,7 +221,7 @@ class ProviderDBMonitor(ProviderBase):
 
         instance.identifier = str(db_instance.id)
 
-    def _delete_instance_cassandra_monitor(self, instance):
+    def _delete_instance_monitor(self, instance):
         DbmonitorInstancia.bind(self.dbmonitor_database)
         DbmonitorInstancia.update({DbmonitorInstancia.ativo: False}).where(
             DbmonitorInstancia.id == int(instance.identifier)

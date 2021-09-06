@@ -328,7 +328,7 @@ def delete_database_cassandra_monitor(provider_name, env, database_name):
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
-        provider.delete_database_cassandra_monitor(database_name)
+        provider.delete_database_monitor(database_name)
     except Exception as e:
         print_exc()
         return response_invalid_request(str(e))
@@ -376,7 +376,7 @@ def delete_instance_cassandra_monitor(provider_name, env, instance_name):
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
-        provider.delete_instance_cassandra_monitor(instance_name)
+        provider.delete_instance_monitor(instance_name)
     except Exception as e:
         print_exc()
         return response_invalid_request(str(e))

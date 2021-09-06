@@ -114,26 +114,28 @@ class ProviderBase(object):
         cassandra.save()
         return cassandra
 
-    def _delete_database_cassandra_monitor(self, cassandra):
+    def _delete_database_monitor(self, sgbd):
         raise NotImplementedError
 
-    def delete_database_cassandra_monitor(self, database_name):
-        cassandra = DatabaseMonitor.objects(
-            database_name=database_name,
-            monitor_provider=self.provider,
-            monitor_environment=self.environment
-        ).get()
-        self._delete_database_cassandra_monitor(cassandra)
-        cassandra.delete()
+    def delete_database_monitor(self, database_name):
+        sgbd = self.get_database_monitor(
+            database_name,
+            raise_on_failure=True
+        )
+        self._delete_database_monitor(sgbd)
+        sgbd.delete()
 
-    def get_instance_monitor(self, identifier_or_name):
+    def get_instance_monitor(self, identifier_or_name, raise_on_failure=False):
         try:
             return InstanceMonitor.objects(
                 Q(identifier=identifier_or_name) | Q(instance_name=identifier_or_name),
                 monitor_provider=self.provider,
                 monitor_environment=self.environment
             ).get()
-        except InstanceMonitor.DoesNotExist:
+        except InstanceMonitor.DoesNotExist as exc:
+            if raise_on_failure:
+                raise Exception(exc)
+
             return None
 
     def _create_instance_cassandra_monitor(self, instance, **kwargs):
@@ -171,16 +173,15 @@ class ProviderBase(object):
         instance.save()
         return instance
 
-    def _delete_instance_cassandra_monitor(self, identifier):
+    def _delete_instance_monitor(self, identifier):
         raise NotImplementedError
 
-    def delete_instance_cassandra_monitor(self, instance_name):
-        instance = InstanceMonitor.objects(
-            instance_name=instance_name,
-            monitor_provider=self.provider,
-            monitor_environment=self.environment
-        ).get()
-        self._delete_instance_cassandra_monitor(instance)
+    def delete_instance_monitor(self, instance_name):
+        instance = self.get_instance_monitor(
+            instance_name,
+            raise_on_failure=True
+        )
+        self._delete_instance_monitor(instance)
         instance.delete()
 
     def get_service_monitor(self, identifier_or_name):
