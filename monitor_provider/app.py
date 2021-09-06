@@ -314,7 +314,7 @@ def get_database_cassandra_monitor(provider_name, env, identifier_or_name):
         print_exc()
         return response_invalid_request(str(e))
 
-    database = provider.get_database_cassandra_monitor(identifier_or_name)
+    database = provider.get_database_monitor(identifier_or_name)
     if not database:
         return response_not_found(identifier_or_name)
     return response_ok(**database.get_json)

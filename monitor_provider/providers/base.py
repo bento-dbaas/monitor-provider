@@ -72,14 +72,17 @@ class ProviderBase(object):
         service.save()
         return service
 
-    def get_database_cassandra_monitor(self, identifier_or_name):
+    def get_database_monitor(self, identifier_or_name, raise_on_failure=False):
         try:
             return DatabaseMonitor.objects(
                 Q(identifier=identifier_or_name) | Q(database_name=identifier_or_name),
                 monitor_provider=self.provider,
                 monitor_environment=self.environment
             ).get()
-        except DatabaseMonitor.DoesNotExist:
+        except DatabaseMonitor.DoesNotExist as exc:
+            if raise_on_failure:
+                raise Exception(exc)
+
             return None
 
     def _create_database_cassandra_monitor(self, cassandra, **kwargs):
@@ -90,7 +93,7 @@ class ProviderBase(object):
         self.check_mandatory_fields(mandatory_fields, **kwargs)
 
         database_name = kwargs.get('database_name')
-        if self.get_database_cassandra_monitor(database_name):
+        if self.get_database_monitor(database_name):
             raise Exception(
                 "A database named '{}' already exists".format(database_name)
             )
@@ -140,7 +143,7 @@ class ProviderBase(object):
         mandatory_fields = ['instance_name', 'dns', 'port', 'database_name']
         self.check_mandatory_fields(mandatory_fields, **kwargs)
 
-        database = self.get_database_cassandra_monitor(identifier_or_name=kwargs.get('database_name'))
+        database = self.get_database_monitor(identifier_or_name=kwargs.get('database_name'))
         if database is None:
             raise Exception(
                 "A database named '{}' could not be found".format(kwargs.get('database_name'))
