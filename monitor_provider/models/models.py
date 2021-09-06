@@ -28,7 +28,7 @@ class ServiceMonitor(Document):
         return {k: v for k, v in d.items() if v}
 
 
-class DatabaseCassandraMonitor(Document):
+class DatabaseMonitor(Document):
     monitor_provider = StringField(required=True)
     monitor_environment = StringField(required=True)
     active = BooleanField(required=True)
@@ -71,7 +71,7 @@ class DatabaseCassandraMonitor(Document):
         return {k: v for k, v in d.items() if v}
 
 
-class InstanceCassandraMonitor(Document):
+class InstanceMonitor(Document):
     monitor_provider = StringField(required=True)
     monitor_environment = StringField(required=True)
     identifier = StringField(required=True)

@@ -5,8 +5,8 @@ from monitor_provider.models.models import (
     HostMonitor,
     TcpMonitor,
     WebMonitor,
-    DatabaseCassandraMonitor,
-    InstanceCassandraMonitor)
+    DatabaseMonitor,
+    InstanceMonitor)
 
 
 class ProviderBase(object):
@@ -74,12 +74,12 @@ class ProviderBase(object):
 
     def get_database_cassandra_monitor(self, identifier_or_name):
         try:
-            return DatabaseCassandraMonitor.objects(
+            return DatabaseMonitor.objects(
                 Q(identifier=identifier_or_name) | Q(database_name=identifier_or_name),
                 monitor_provider=self.provider,
                 monitor_environment=self.environment
             ).get()
-        except DatabaseCassandraMonitor.DoesNotExist:
+        except DatabaseMonitor.DoesNotExist:
             return None
 
     def _create_database_cassandra_monitor(self, cassandra, **kwargs):
@@ -95,7 +95,7 @@ class ProviderBase(object):
                 "A database named '{}' already exists".format(database_name)
             )
 
-        cassandra = DatabaseCassandraMonitor()
+        cassandra = DatabaseMonitor()
         cassandra.monitor_provider = self.provider
         cassandra.monitor_environment = self.environment
         cassandra.database_name = database_name
@@ -115,7 +115,7 @@ class ProviderBase(object):
         raise NotImplementedError
 
     def delete_database_cassandra_monitor(self, database_name):
-        cassandra = DatabaseCassandraMonitor.objects(
+        cassandra = DatabaseMonitor.objects(
             database_name=database_name,
             monitor_provider=self.provider,
             monitor_environment=self.environment
@@ -125,12 +125,12 @@ class ProviderBase(object):
 
     def get_instance_cassandra_monitor(self, identifier_or_name):
         try:
-            return InstanceCassandraMonitor.objects(
+            return InstanceMonitor.objects(
                 Q(identifier=identifier_or_name) | Q(instance_name=identifier_or_name),
                 monitor_provider=self.provider,
                 monitor_environment=self.environment
             ).get()
-        except InstanceCassandraMonitor.DoesNotExist:
+        except InstanceMonitor.DoesNotExist:
             return None
 
     def _create_instance_cassandra_monitor(self, instance, **kwargs):
@@ -152,7 +152,7 @@ class ProviderBase(object):
                 "A instance named '{}' already exists".format(instance_name)
             )
 
-        instance = InstanceCassandraMonitor()
+        instance = InstanceMonitor()
         instance.monitor_provider = self.provider
         instance.monitor_environment = self.environment
         instance.instance_name = instance_name
@@ -172,7 +172,7 @@ class ProviderBase(object):
         raise NotImplementedError
 
     def delete_instance_cassandra_monitor(self, instance_name):
-        instance = InstanceCassandraMonitor.objects(
+        instance = InstanceMonitor.objects(
             instance_name=instance_name,
             monitor_provider=self.provider,
             monitor_environment=self.environment
