@@ -5,6 +5,7 @@ from traceback import print_exc
 from flask import Flask, request, jsonify, make_response
 from flask_httpauth import HTTPBasicAuth
 from mongoengine import connect
+from monitor_provider.providers.constants import CASSANDRA
 from monitor_provider.providers import get_provider_to
 from monitor_provider.settings import (
     APP_USERNAME,
@@ -294,7 +295,7 @@ def create_database_cassandra_monitor(provider_name, env):
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
-        monitor = provider.create_database_cassandra_monitor(**data)
+        monitor = provider.create_database_monitor(dbms_name=CASSANDRA, **data)
     except Exception as e:
         print_exc()
         return response_invalid_request(str(e))

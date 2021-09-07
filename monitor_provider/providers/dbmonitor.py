@@ -1,3 +1,5 @@
+from monitor_provider.providers.constants import Constants
+
 from monitor_provider.credentials.dbmonitor import (
         CredentialDBMonitor, CredentialAddDBMonitor
     )
@@ -131,34 +133,35 @@ class ProviderDBMonitor(ProviderBase):
         DbmonitorServico.delete().where(
             DbmonitorServico.id == service.identifier).execute()
 
-    def _create_database_cassandra_monitor(self, cassandra, **kwargs):
-        if not cassandra.environment:
-            cassandra.environment = self.credential.default_environment
-        environment = slugify(cassandra.environment)
+    def _create_database_monitor(self, dbms, dbms_name, **kwargs):
+        constants = Constants(dbms_name)
+        dbms.topology_type_id = constants.topology_id
+        dbms.topology_name = constants.topology_name
+        dbms.sgbd_type_id = constants.sgbd_id
+        dbms.sgbd = constants.sgbd_name
+
+        if not dbms.environment:
+            dbms.environment = self.credential.default_environment
+        environment = slugify(dbms.environment)
         if environment not in AMBIENTE_DATABASE.keys():
             msg = "Environment must be in this list: {}".format(
                 TIPO_AMBIENTE_DATABASE)
             raise Exception(msg)
-        cassandra.environment_id = AMBIENTE_DATABASE[environment]
+        dbms.environment_id = AMBIENTE_DATABASE[environment]
 
-        if not cassandra.cloud_name:
-            cassandra.cloud_name = self.credential.default_cloud_name
-        cassandra.cloud_id  = self.get_cloud_by_name(cassandra.cloud_name)
+        if not dbms.cloud_name:
+            dbms.cloud_name = self.credential.default_cloud_name
+        dbms.cloud_id  = self.get_cloud_by_name(dbms.cloud_name)
 
-        if not cassandra.machine_type:
-            cassandra.machine_type = self.credential.default_machine_type
-        machine_type = slugify(cassandra.machine_type)
+        if not dbms.machine_type:
+            dbms.machine_type = self.credential.default_machine_type
+        machine_type = slugify(dbms.machine_type)
 
         if machine_type not in TIPO_MAQUINA.keys():
             msg = "machine_type must be in this list: {}".format(
                 TIPO_MAQUINA_LIST)
             raise Exception(msg)
-        cassandra.machine_type_id = TIPO_MAQUINA[machine_type]
-
-        cassandra.topology_type_id = CASSANDRA_CLUSTER
-        cassandra.topology_name = TOPOLOGIA_CHOICES[cassandra.topology_type_id]
-        cassandra.sgbd_type_id = SGBD_CASSANDRA
-        cassandra.sgbd = SGBD_CHOICES[cassandra.sgbd_type_id]
+        dbms.machine_type_id = TIPO_MAQUINA[machine_type]
 
         password = fn.ENCODE(
             kwargs.get('password'), self.credential.decode_key
@@ -166,21 +169,21 @@ class ProviderDBMonitor(ProviderBase):
 
         DbmonitorDatabase.bind(self.dbmonitor_database)
         database = DbmonitorDatabase(
-            ativo=cassandra.active,
-            nome=cassandra.database_name,
-            tipo=cassandra.environment_id,
-            tipo_maquina = cassandra.machine_type_id,
-            porta=cassandra.port,
-            versao=cassandra.version,
-            usuario=cassandra.username,
+            ativo=dbms.active,
+            nome=dbms.database_name,
+            tipo=dbms.environment_id,
+            tipo_maquina = dbms.machine_type_id,
+            porta=dbms.port,
+            versao=dbms.version,
+            usuario=dbms.username,
             senha=password,
-            cloud_id=cassandra.cloud_id,
-            sgbd=cassandra.sgbd_type_id,
-            topologia=cassandra.topology_type_id
+            cloud_id=dbms.cloud_id,
+            sgbd=dbms.sgbd_type_id,
+            topologia=dbms.topology_type_id
         )
 
         database.save()
-        cassandra.identifier = str(database.id)
+        dbms.identifier = str(database.id)
 
     def _delete_database_monitor(self, sgbd):
         DbmonitorDatabase.bind(self.dbmonitor_database)

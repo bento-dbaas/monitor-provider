@@ -1,5 +1,6 @@
 from mongoengine.queryset.visitor import Q
 
+from monitor_provider.providers import constants
 from monitor_provider.models.models import (
     ServiceMonitor,
     HostMonitor,
@@ -85,11 +86,11 @@ class ProviderBase(object):
 
             return None
 
-    def _create_database_cassandra_monitor(self, cassandra, **kwargs):
+    def _create_database_monitor(self, dbms, dbms_name, **kwargs):
         raise NotImplementedError
 
-    def create_database_cassandra_monitor(self, **kwargs):
-        mandatory_fields = ['database_name', 'port', 'version', 'username', 'password']
+    def create_database_monitor(self, dbms_name, **kwargs):
+        mandatory_fields = constants.MANDATORY_FIELDS[dbms_name]
         self.check_mandatory_fields(mandatory_fields, **kwargs)
 
         database_name = kwargs.get('database_name')
@@ -98,21 +99,21 @@ class ProviderBase(object):
                 "A database named '{}' already exists".format(database_name)
             )
 
-        cassandra = DatabaseMonitor()
-        cassandra.monitor_provider = self.provider
-        cassandra.monitor_environment = self.environment
-        cassandra.database_name = database_name
-        cassandra.port = kwargs.get('port')
-        cassandra.username = kwargs.get('username')
-        cassandra.version = kwargs.get('version')
-        cassandra.active = True
-        cassandra.environment = kwargs.get('environment')
-        cassandra.cloud_name = kwargs.get('cloud_name')
-        cassandra.machine_type = kwargs.get('machine_type')
-        self._create_database_cassandra_monitor(cassandra, **kwargs)
+        dbms = DatabaseMonitor()
+        dbms.monitor_provider = self.provider
+        dbms.monitor_environment = self.environment
+        dbms.database_name = database_name
+        dbms.port = kwargs.get('port')
+        dbms.username = kwargs.get('username')
+        dbms.version = kwargs.get('version')
+        dbms.active = True
+        dbms.environment = kwargs.get('environment')
+        dbms.cloud_name = kwargs.get('cloud_name')
+        dbms.machine_type = kwargs.get('machine_type')
+        self._create_database_monitor(dbms, dbms_name, **kwargs)
 
-        cassandra.save()
-        return cassandra
+        dbms.save()
+        return dbms
 
     def _delete_database_monitor(self, sgbd):
         raise NotImplementedError
