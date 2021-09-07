@@ -191,7 +191,7 @@ class ProviderDBMonitor(ProviderBase):
             DbmonitorDatabase.id == int(sgbd.identifier)
         ).execute()
 
-    def _create_instance_cassandra_monitor(self, instance, **kwargs):
+    def _create_instance_monitor(self, instance, update_dns=False, **kwargs):
         if not instance.machine_type:
             instance.machine_type = self.credential.default_machine_type
         machine_type = slugify(instance.machine_type)
@@ -209,7 +209,7 @@ class ProviderDBMonitor(ProviderBase):
             tipo_mongodb=None,
             disk_path=instance.disk_path,
             tipo_maquina=instance.machine_type_id,
-            tipo_instancia=INSTANCIA_CASSANDRA,
+            tipo_instancia=instance.type_instance,
             nome=instance.instance_name,
             maquina=instance.machine,
             porta=instance.port,
@@ -217,12 +217,12 @@ class ProviderDBMonitor(ProviderBase):
         )
 
         db_instance.save()
-
-        dns_list = self.get_database_monitor_dns(instance.database_id)
-        dns_list.append(instance.dns)
-        self.set_database_monitor_dns(instance.database_id, dns_list)
-
         instance.identifier = str(db_instance.id)
+
+        if update_dns:
+            dns_list = self.get_database_monitor_dns(instance.database_id)
+            dns_list.append(instance.dns)
+            self.set_database_monitor_dns(instance.database_id, dns_list)
 
     def _delete_instance_monitor(self, instance):
         DbmonitorInstancia.bind(self.dbmonitor_database)

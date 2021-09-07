@@ -344,7 +344,7 @@ def create_instance_cassandra_monitor(provider_name, env):
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
-        monitor = provider.create_instance_cassandra_monitor(**data)
+        monitor = provider.create_instance_monitor(dbms_name=CASSANDRA, update_dns=True, **data)
     except Exception as e:
         print_exc()
         return response_invalid_request(str(e))

@@ -31,6 +31,10 @@ INSTANCIA_POSTGRESQL = 16
 INSTANCIA_POSTGRESQL_STAND_BY = 17
 INSTANCIA_CASSANDRA = 18
 
+INSTANCIA = {
+    CASSANDRA: INSTANCIA_CASSANDRA
+}
+
 class Constants:
     def __init__(self, dbms, **kwargs):
         self.dbms = dbms

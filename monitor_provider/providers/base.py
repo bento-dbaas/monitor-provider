@@ -139,10 +139,10 @@ class ProviderBase(object):
 
             return None
 
-    def _create_instance_cassandra_monitor(self, instance, **kwargs):
+    def _create_instance_monitor(self, instance, update_dns=False, **kwargs):
         raise NotImplementedError
 
-    def create_instance_cassandra_monitor(self, **kwargs):
+    def create_instance_monitor(self, dbms_name, update_dns=False, **kwargs):
         mandatory_fields = ['instance_name', 'dns', 'port', 'database_name']
         self.check_mandatory_fields(mandatory_fields, **kwargs)
 
@@ -158,6 +158,13 @@ class ProviderBase(object):
                 "A instance named '{}' already exists".format(instance_name)
             )
 
+        instance_type = kwargs.get('instance_type')
+        if not instance_type:
+            try:
+                instance_type = constants.INSTANCIA[dbms_name]
+            except KeyError:
+                raise Exception("An instance_type is mandatory")
+
         instance = InstanceMonitor()
         instance.monitor_provider = self.provider
         instance.monitor_environment = self.environment
@@ -165,11 +172,12 @@ class ProviderBase(object):
         instance.database_id = database.identifier
         instance.port = kwargs.get('port')
         instance.dns = kwargs.get('dns')
+        instance.type_instance = instance_type
         instance.machine = kwargs.get('machine')
         instance.machine_type = kwargs.get('machine_type')
         instance.disk_path = kwargs.get('disk_path')
         instance.active = True
-        self._create_instance_cassandra_monitor(instance, **kwargs)
+        self._create_instance_monitor(instance, update_dns=update_dns, **kwargs)
 
         instance.save()
         return instance
