@@ -106,6 +106,7 @@ class ProviderBase(object):
         dbms.port = kwargs.get('port')
         dbms.username = kwargs.get('username')
         dbms.version = kwargs.get('version')
+        dbms.dns = kwargs.get('dns')
         dbms.active = True
         dbms.environment = kwargs.get('environment')
         dbms.cloud_name = kwargs.get('cloud_name')
@@ -161,7 +162,7 @@ class ProviderBase(object):
         instance_type = kwargs.get('instance_type')
         if not instance_type:
             try:
-                instance_type = constants.INSTANCIA[dbms_name]
+                instance_type = constants.INSTANCIA[database.topology_type_id]
             except KeyError:
                 raise Exception("An instance_type is mandatory")
 

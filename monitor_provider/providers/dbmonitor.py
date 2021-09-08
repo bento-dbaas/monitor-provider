@@ -134,7 +134,7 @@ class ProviderDBMonitor(ProviderBase):
             DbmonitorServico.id == service.identifier).execute()
 
     def _create_database_monitor(self, dbms, dbms_name, **kwargs):
-        constants = Constants(dbms_name)
+        constants = Constants(dbms_name, **kwargs)
         dbms.topology_type_id = constants.topology_id
         dbms.topology_name = constants.topology_name
         dbms.sgbd_type_id = constants.sgbd_id
@@ -174,6 +174,7 @@ class ProviderDBMonitor(ProviderBase):
             tipo=dbms.environment_id,
             tipo_maquina = dbms.machine_type_id,
             porta=dbms.port,
+            dns=dbms.dns,
             versao=dbms.version,
             usuario=dbms.username,
             senha=password,

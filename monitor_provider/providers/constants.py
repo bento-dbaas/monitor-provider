@@ -1,8 +1,9 @@
 CASSANDRA = 'CASSANDRA'
-POSTGRESSQL = 'POSTGRESQL'
+POSTGRESQL = 'POSTGRESQL'
 
 MANDATORY_FIELDS = {
-    CASSANDRA: ['database_name', 'port', 'version', 'username', 'password']
+    CASSANDRA: ['database_name', 'port', 'version', 'username', 'password'],
+    POSTGRESQL: ['database_name', 'port', 'version', 'username', 'password', 'topology']
 }
 
 SGBD_CASSANDRA = 'C'
@@ -14,12 +15,17 @@ SGBD_CHOICES = {
 
 SGBD = {
     CASSANDRA: SGBD_CASSANDRA,
-    POSTGRESSQL: SGBD_POSTGRESQL
+    POSTGRESQL: SGBD_POSTGRESQL
 }
 
 CASSANDRA_CLUSTER = 18
 POSTGRESQL_SINGLE = 19
 POSTGRESQL_STAND_BY = 20
+
+TOPOLOGY = {
+    'SINGLE': POSTGRESQL_SINGLE,
+    'STANDBY': POSTGRESQL_STAND_BY
+}
 
 TOPOLOGIA_CHOICES = {
     CASSANDRA_CLUSTER: "Cassandra Cluster",
@@ -32,7 +38,9 @@ INSTANCIA_POSTGRESQL_STAND_BY = 17
 INSTANCIA_CASSANDRA = 18
 
 INSTANCIA = {
-    CASSANDRA: INSTANCIA_CASSANDRA
+    CASSANDRA_CLUSTER: INSTANCIA_CASSANDRA,
+    POSTGRESQL_SINGLE: INSTANCIA_POSTGRESQL,
+    POSTGRESQL_STAND_BY: INSTANCIA_POSTGRESQL_STAND_BY
 }
 
 class Constants:
@@ -45,7 +53,16 @@ class Constants:
         if self.dbms == CASSANDRA:
             self._topology_id = CASSANDRA_CLUSTER
         else:
-            self._topology_id = self.kwargs.get('topology')
+            try:
+                topology_code = self.kwargs.get('topology')
+                self._topology_id = TOPOLOGY[topology_code]
+            except KeyError:
+                raise Exception(
+                    "Invalid topology choice. "
+                    "Please choose one of the following: {}".format(
+                        list(TOPOLOGY.keys())
+                    )
+                )
 
         self._topology_name = TOPOLOGIA_CHOICES[self._topology_id]
         self._sgbd_id = SGBD[self.dbms]
