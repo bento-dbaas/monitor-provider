@@ -3,7 +3,7 @@ POSTGRESQL = 'POSTGRESQL'
 
 MANDATORY_FIELDS = {
     CASSANDRA: ['database_name', 'port', 'version', 'username', 'password'],
-    POSTGRESQL: ['database_name', 'port', 'version', 'username', 'password', 'topology']
+    POSTGRESQL: ['database_name', 'port', 'version', 'username', 'password', 'dns', 'topology']
 }
 
 SGBD_CASSANDRA = 'C'
