@@ -5,6 +5,7 @@ from traceback import print_exc
 from flask import Flask, request, jsonify, make_response
 from flask_httpauth import HTTPBasicAuth
 from mongoengine import connect
+from monitor_provider.providers.constants import CASSANDRA, POSTGRESQL
 from monitor_provider.providers import get_provider_to
 from monitor_provider.settings import (
     APP_USERNAME,
@@ -294,7 +295,7 @@ def create_database_cassandra_monitor(provider_name, env):
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
-        monitor = provider.create_database_cassandra_monitor(**data)
+        monitor = provider.create_database_monitor(dbms_name=CASSANDRA, **data)
     except Exception as e:
         print_exc()
         return response_invalid_request(str(e))
@@ -314,7 +315,7 @@ def get_database_cassandra_monitor(provider_name, env, identifier_or_name):
         print_exc()
         return response_invalid_request(str(e))
 
-    database = provider.get_database_cassandra_monitor(identifier_or_name)
+    database = provider.get_database_monitor(identifier_or_name)
     if not database:
         return response_not_found(identifier_or_name)
     return response_ok(**database.get_json)
@@ -328,7 +329,7 @@ def delete_database_cassandra_monitor(provider_name, env, database_name):
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
-        provider.delete_database_cassandra_monitor(database_name)
+        provider.delete_database_monitor(database_name)
     except Exception as e:
         print_exc()
         return response_invalid_request(str(e))
@@ -343,7 +344,7 @@ def create_instance_cassandra_monitor(provider_name, env):
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
-        monitor = provider.create_instance_cassandra_monitor(**data)
+        monitor = provider.create_instance_monitor(dbms_name=CASSANDRA, update_dns=True, **data)
     except Exception as e:
         print_exc()
         return response_invalid_request(str(e))
@@ -362,7 +363,7 @@ def get_instance_cassandra_monitor(provider_name, env, identifier_or_name):
         print_exc()
         return response_invalid_request(str(e))
 
-    database = provider.get_instance_cassandra_monitor(identifier_or_name)
+    database = provider.get_instance_monitor(identifier_or_name)
     if not database:
         return response_not_found(identifier_or_name)
     return response_ok(**database.get_json)
@@ -376,7 +377,7 @@ def delete_instance_cassandra_monitor(provider_name, env, instance_name):
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
-        provider.delete_instance_cassandra_monitor(instance_name)
+        provider.delete_instance_monitor(instance_name)
     except Exception as e:
         print_exc()
         return response_invalid_request(str(e))
@@ -426,6 +427,104 @@ def delete_tcp_monitor(provider_name, env, identifier):
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
         provider.delete_tcp_monitor(identifier)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+    return response_ok()
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/database_postgresql/new",
+    methods=['POST'])
+@auth.login_required
+def create_database_postgresql_monitor(provider_name, env):
+    data = json.loads(request.data or 'null')
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        monitor = provider.create_database_monitor(dbms_name=POSTGRESQL, **data)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+
+    return response_created(success=True, identifier=monitor.identifier)
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/database_postgresql/<string:identifier_or_name>",
+    methods=['GET'])
+@auth.login_required
+def get_database_postgresql_monitor(provider_name, env, identifier_or_name):
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+
+    database = provider.get_database_monitor(identifier_or_name)
+    if not database:
+        return response_not_found(identifier_or_name)
+    return response_ok(**database.get_json)
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/database_postgresql/<string:database_name>",
+    methods=['DELETE'])
+@auth.login_required
+def delete_database_postgresql_monitor(provider_name, env, database_name):
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        provider.delete_database_monitor(database_name)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+    return response_ok()
+
+@app.route(
+    "/<string:provider_name>/<string:env>/instance_postgresql/new",
+    methods=['POST'])
+@auth.login_required
+def create_instance_postgresql_monitor(provider_name, env):
+    data = json.loads(request.data or 'null')
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        monitor = provider.create_instance_monitor(dbms_name=POSTGRESQL, update_dns=False, **data)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+    return response_created(success=True, identifier=monitor.identifier)
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/instance_postgresql/<string:identifier_or_name>",
+    methods=['GET'])
+@auth.login_required
+def get_instance_postgresql_monitor(provider_name, env, identifier_or_name):
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+
+    database = provider.get_instance_monitor(identifier_or_name)
+    if not database:
+        return response_not_found(identifier_or_name)
+    return response_ok(**database.get_json)
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/instance_postgresql/<string:instance_name>",
+    methods=['DELETE'])
+@auth.login_required
+def delete_instance_postgresql_monitor(provider_name, env, instance_name):
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        provider.delete_instance_monitor(instance_name)
     except Exception as e:
         print_exc()
         return response_invalid_request(str(e))
