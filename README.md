@@ -106,31 +106,45 @@ curl -X GET '<monitor-provider_endpoint>/<provider_name>/<env>/web/identifier_or
 curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/web/identifier'
 ```
 
-### Database Cassandra Monitor (DBMonitor only)
+### Database Monitor (Cassandra, PostgreSQL) (DBMonitor only)
 ###### ADD
 ```
-curl -X POST -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/database_cassandra/new' -H 'Content-Type: application/json' -d '{"database_name": "NAME", "environment": "ENVIRONMENT", "port": "PORT", "username": "USERNAME", "password": "PASSWORD", "version": "VERSION", "cloud_name": "CLOUD_NAME"}'
+curl -X POST -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/database/<database>/new' -H 'Content-Type: application/json' -d '{"database_name": "NAME", "environment": "ENVIRONMENT", "port": "PORT", "username": "USERNAME", "password": "PASSWORD", "version": "VERSION", "cloud_name": "CLOUD_NAME"}'
 ```
+Database options are: **cassandra**, **postgresql**
+
+Cassandra fields:
 
 Mandatory fields | Optional fields
 ------------ | -------------
 database_name, port, version, username, password | environment, cloud_name, machine_type
 
+PostgreSQL fields:
+
+Mandatory fields | Optional fields
+------------ | -------------
+database_name, port, version, username, password, dns, topology | environment, cloud_name, machine_type
+
+Topology options are:
+- **SINGLE**: for PostgreSQL Single Instance
+- **STANDBY**: for PostgreSQL com Stand By Database
+
 ###### GET
 ```
-curl -X GET -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/database_cassandra/identifier_or_name'
+curl -X GET -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/database/identifier_or_name'
 ```
 
 ###### DELETE
 ```
-curl -X DELETE -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/database_cassandra/database_name'
+curl -X DELETE -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/database/database_name'
 ```
 
-### Instance Cassandra Monitor (DBMonitor only)
+### Instance Monitor (Cassandra, PostgreSQL) (DBMonitor only)
 ###### ADD
 ```
-curl -X POST -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/new' -H 'Content-Type: application/json' -d '{"instance_name": "INSTANCE_NAME", "dns": "DNS", "port": "PORT", "database_name": "DATABASE_NAME", "disk_path": "DISK_PATH", "machine": "MACHINE"}'
+curl -X POST -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/instance/<database>/new' -H 'Content-Type: application/json' -d '{"instance_name": "INSTANCE_NAME", "dns": "DNS", "port": "PORT", "database_name": "DATABASE_NAME", "disk_path": "DISK_PATH", "machine": "MACHINE"}'
 ```
+Database options are: **cassandra**, **postgresql**
 
 Mandatory fields | Optional fields
 ------------ | -------------
@@ -138,12 +152,12 @@ dns, port, instance_name, database_name | machine, machine_type, disk_path
 
 ###### GET
 ```
-curl -X GET -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/identifier_or_name'
+curl -X GET -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/instance/identifier_or_name'
 ```
 
 ###### DELETE
 ```
-curl -X DELETE -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/instance_cassandra/instance_name'
+curl -X DELETE -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/instance/instance_name'
 ```
 
 ### TCPMonitor (Zabbix)
@@ -164,48 +178,4 @@ curl -X GET '<monitor-provider_endpoint>/zabbix/<env>/tcp/identifier'
 ###### DELETE
 ```
 curl -X DELETE '<monitor-provider_endpoint>/zabbix/<env>/tcp/identifier'
-```
-
-### Database PostgreSQL Monitor (DBMonitor only)
-###### ADD
-```
-curl -X POST -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/database_postgresql/new' -H 'Content-Type: application/json' -d '{"database_name": "NAME", "environment": "ENVIRONMENT", "port": "PORT", "username": "USERNAME", "password": "PASSWORD", "version": "VERSION", "cloud_name": "CLOUD_NAME", "topology": "TOPOLOGY"}'
-```
-
-Mandatory fields | Optional fields
------------- | -------------
-database_name, port, version, username, password, dns, topology | environment, cloud_name, machine_type
-
-Topology options are:
-"SINGLE": for PostgreSQL Single Instance
-"STANDBY": for PostgreSQL com Stand By Database
-
-###### GET
-```
-curl -X GET -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/database_postgresql/identifier_or_name'
-```
-
-###### DELETE
-```
-curl -X DELETE -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/database_postgresql/database_name'
-```
-
-### Instance PostgreSQL Monitor (DBMonitor only)
-###### ADD
-```
-curl -X POST -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/instance_postgresql/new' -H 'Content-Type: application/json' -d '{"instance_name": "INSTANCE_NAME", "dns": "DNS", "port": "PORT", "database_name": "DATABASE_NAME", "disk_path": "DISK_PATH", "machine": "MACHINE"}'
-```
-
-Mandatory fields | Optional fields
------------- | -------------
-dns, port, instance_name, database_name | machine, machine_type, disk_path
-
-###### GET
-```
-curl -X GET -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/instance_postgresql/identifier_or_name'
-```
-
-###### DELETE
-```
-curl -X DELETE -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/instance_postgresql/instance_name'
 ```
