@@ -1,5 +1,7 @@
-CASSANDRA = 'CASSANDRA'
-POSTGRESQL = 'POSTGRESQL'
+CASSANDRA = 'cassandra'
+POSTGRESQL = 'postgresql'
+
+VALID_DBMS = (CASSANDRA, POSTGRESQL)
 
 MANDATORY_FIELDS = {
     CASSANDRA: ['database_name', 'port', 'version', 'username', 'password'],

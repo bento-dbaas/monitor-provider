@@ -166,6 +166,9 @@ class ProviderBase(object):
             except KeyError:
                 raise Exception("An instance_type is mandatory")
 
+        if dbms_name == constants.CASSANDRA:
+            update_dns = True
+
         instance = InstanceMonitor()
         instance.monitor_provider = self.provider
         instance.monitor_environment = self.environment
