@@ -215,3 +215,38 @@ class TcpMonitor(Document):
             'hostgroups': self.hostgroups
         }
         return {k: v for k, v in d.items() if v}
+
+
+class MysqlMonitor(Document):
+    monitor_provider = StringField(required=True)
+    monitor_environment = StringField(required=True)
+    environment = StringField(required=True)
+    identifier = StringField(required=True)
+    host = StringField(required=True)
+    port = StringField(required=True)
+    user = StringField(required=True)
+    locality = StringField(required=True)
+    alarm = StringField(required=False)
+    hostgroups = ListField(required=False)
+    version = StringField(required=True)
+
+    @property
+    def uuid(self):
+        return str(self.pk)
+
+    @property
+    def get_json(self):
+        d = {
+            'monitor_provider': self.monitor_provider,
+            'monitor_environment': self.monitor_environment,
+            'environment': self.environment,
+            'identifier': self.identifier,
+            'locality': self.locality,
+            'alarm': self.alarm,
+            'host': self.host,
+            'port': self.port,
+            'user': self.user,
+            'version': self.version,
+            'hostgroups': self.hostgroups
+        }
+        return {k: v for k, v in d.items() if v}

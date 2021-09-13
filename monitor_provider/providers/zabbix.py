@@ -116,8 +116,51 @@ class ProviderZabbix(ProviderBase):
 
         opt = ('doc', 'notes', 'notification_email', 'notification_slack', 'zbx_proxy')
         for option in opt:
-            if getattr(tcp, option) is None:
+            if kwargs.get(option, None) is None:
                 continue
-            data[option] = getattr(tcp, option)
+            data[option] = kwargs.get(option)
 
         self.zapi.globo.createTCPMonitors(**data)
+
+    def _delete_mysql_monitor(self, db):
+        data = {'host': db.identifier}
+        self.zapi.globo.deleteMonitors(**data)
+
+    def _create_mysql_monitor(self, db, **kwargs):
+        db.identifier = db.host
+
+        if not db.environment:
+            db.environment = self.credential.default_environment
+
+        if not db.locality:
+            db.locality = self.credential.default_locality
+
+        if not db.hostgroups:
+            db.hostgroups = self.credential.default_hostgroups
+
+        if not db.alarm:
+            db.alarm = self.credential.alarm
+
+        data = {
+            'environment': db.environment,
+            'locality': db.locality,
+            'hostgroups': db.hostgroups,
+            'alarm': db.alarm,
+            'host': db.host,
+            'port': db.port,
+            'user': db.user,
+            'version': db.version,
+            'password': kwargs.get('password'),
+        }
+
+        opt = (
+            'clone', 'healthcheck', 'healthcheck_monitor', 'ssl_expire',
+            'notification_email', 'notification_slack', 'slave_running',
+            'notification_telegram', 'seconds_behind_master', 'ssl_support'
+        )
+        for option in opt:
+            if kwargs.get(option, None) is None:
+                continue
+            data[option] = kwargs.get(option)
+
+        self.zapi.globo.createMySQLMonitors(**data)

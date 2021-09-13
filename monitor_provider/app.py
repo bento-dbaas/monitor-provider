@@ -441,3 +441,52 @@ def delete_tcp_monitor(provider_name, env, identifier):
         print_exc()
         return response_invalid_request(str(e))
     return response_ok()
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/mysql/new",
+    methods=['POST'])
+@auth.login_required
+def create_mysql_monitor(provider_name, env):
+    data = json.loads(request.data or 'null')
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        db = provider.create_mysql_monitor(**data)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+    return response_created(success=True, identifier=db.identifier)
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/mysql/<string:identifier_or_name>",
+    methods=['GET'])
+@auth.login_required
+def get_mysql_monitor(provider_name, env, identifier_or_name):
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+
+    db = provider.get_mysql_monitor(identifier_or_name)
+    if not db:
+        return response_not_found(identifier_or_name)
+    return response_ok(**db.get_json)
+
+
+@app.route(
+    "/<string:provider_name>/<string:env>/mysql/<string:identifier>",
+    methods=['DELETE'])
+@auth.login_required
+def delete_mysql_monitor(provider_name, env, identifier):
+    try:
+        provider_cls = get_provider_to(provider_name)
+        provider = provider_cls(env)
+        provider.delete_mysql_monitor(identifier)
+    except Exception as e:
+        print_exc()
+        return response_invalid_request(str(e))
+    return response_ok()
