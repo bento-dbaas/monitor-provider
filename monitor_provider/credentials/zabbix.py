@@ -41,6 +41,6 @@ class CredentialAddZabbix(CredentialAdd):
     @property
     def valid_fields(self):
         return [
-            'user', 'password', 'endpoint', 'default_environment',
-            'default_locality', 'default_hostgroups', 'alarm'
+            'user', 'password', 'endpoint', 'alarm', 'default_environment',
+            'default_db_environment', 'default_locality', 'default_hostgroups'
         ]
