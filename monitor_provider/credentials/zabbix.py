@@ -20,6 +20,10 @@ class CredentialZabbix(CredentialBase):
         return self.content['default_environment']
 
     @property
+    def default_db_environment(self):
+        return self.content['default_db_environment']
+
+    @property
     def default_locality(self):
         return self.content['default_locality']
 
