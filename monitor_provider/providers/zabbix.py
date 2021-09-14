@@ -130,7 +130,7 @@ class ProviderZabbix(ProviderBase):
         db.identifier = db.host
 
         if not db.environment:
-            db.environment = self.credential.default_environment
+            db.environment = self.credential.default_db_environment
 
         if not db.locality:
             db.locality = self.credential.default_locality
@@ -153,10 +153,24 @@ class ProviderZabbix(ProviderBase):
             'password': kwargs.get('password'),
         }
 
+        if kwargs.get('healthcheck'):
+            data['healthcheck'] = {
+                'host': db.host,
+                'port': 80,
+                'string': 'WORKING',
+                'uri': 'health-check/'
+            }
+            data['healthcheck_monitor'] = {
+                'host': db.host,
+                'port': 80,
+                'string': 'WORKING',
+                'uri': 'health-check/monitor/'
+            }
+
         opt = (
-            'clone', 'healthcheck', 'healthcheck_monitor', 'ssl_expire',
-            'notification_email', 'notification_slack', 'slave_running',
-            'notification_telegram', 'seconds_behind_master', 'ssl_support'
+            'clone', 'ssl_expire', 'notification_email', 'notification_slack',
+            'slave_running', 'notification_telegram', 'seconds_behind_master',
+            'ssl_support'
         )
         for option in opt:
             if kwargs.get(option, None) is None:
