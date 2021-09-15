@@ -126,8 +126,8 @@ Mandatory fields | Optional fields
 database_name, port, version, username, password, dns, topology | environment, cloud_name, machine_type
 
 Topology options are:
-- **SINGLE**: for PostgreSQL Single Instance
-- **STANDBY**: for PostgreSQL com Stand By Database
+- **POSTGRESQL_SINGLE**: for PostgreSQL Single Instance
+- **POSTGRESQL_STANDBY**: for PostgreSQL com Stand By Database
 
 ###### GET
 ```
