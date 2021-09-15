@@ -179,3 +179,23 @@ curl -X GET '<monitor-provider_endpoint>/zabbix/<env>/tcp/identifier'
 ```
 curl -X DELETE '<monitor-provider_endpoint>/zabbix/<env>/tcp/identifier'
 ```
+
+### MySQLMonitor (Zabbix)
+###### ADD
+```
+curl -X POST '<monitor-provider_endpoint>/zabbix/<env>/mysql/new' -H 'Content-Type: application/json' -d '{"host": "host", "port": "port", "user": "user", "password": "password", "version": "version"}'
+```
+
+Mandatory fields | Optional fields
+------------ | -------------
+host, port, user, password, version | environment, locality, alarm, hostgroups, version
+
+###### GET
+```
+curl -X GET '<monitor-provider_endpoint>/zabbix/<env>/mysql/identifier'
+```
+
+###### DELETE
+```
+curl -X DELETE '<monitor-provider_endpoint>/zabbix/<env>/mysql/identifier'
+```
