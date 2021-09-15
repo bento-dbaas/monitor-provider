@@ -372,7 +372,7 @@ class ProviderBase(object):
         raise NotImplementedError
 
     def create_mysql_monitor(self, **kwargs):
-        mandatory_fields = ["host", "port", "user", "password", "version"]
+        mandatory_fields = ["host", "port", "version"]
         self.check_mandatory_fields(mandatory_fields, **kwargs)
 
         db = MysqlMonitor()

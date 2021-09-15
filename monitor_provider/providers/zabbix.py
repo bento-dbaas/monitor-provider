@@ -141,6 +141,13 @@ class ProviderZabbix(ProviderBase):
         if not db.alarm:
             db.alarm = self.credential.alarm
 
+        if not db.user:
+            db.user = self.credential.user
+
+        password = kwargs.get("password")
+        if password is None:
+            password = self.credential.password
+
         data = {
             'environment': db.environment,
             'locality': db.locality,
@@ -150,7 +157,7 @@ class ProviderZabbix(ProviderBase):
             'port': db.port,
             'user': db.user,
             'version': db.version,
-            'password': kwargs.get('password'),
+            'password': password,
         }
 
         if kwargs.get('healthcheck'):

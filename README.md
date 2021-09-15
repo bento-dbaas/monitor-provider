@@ -183,12 +183,14 @@ curl -X DELETE '<monitor-provider_endpoint>/zabbix/<env>/tcp/identifier'
 ### MySQLMonitor (Zabbix)
 ###### ADD
 ```
-curl -X POST '<monitor-provider_endpoint>/zabbix/<env>/mysql/new' -H 'Content-Type: application/json' -d '{"host": "host", "port": "port", "user": "user", "password": "password", "version": "version"}'
+curl -X POST '<monitor-provider_endpoint>/zabbix/<env>/mysql/new' -H 'Content-Type: application/json' -d '{"host": "host", "port": "port", "version": "version"}'
 ```
 
 Mandatory fields | Optional fields
 ------------ | -------------
-host, port, user, password, version | environment, locality, alarm, hostgroups, version
+host, port, version | environment, locality, alarm, hostgroups, version, user, password, healthcheck
+
+**healthcheck** is an optional boolean field. To enable it just pass it along with data as ```"healthcheck": true```
 
 ###### GET
 ```
