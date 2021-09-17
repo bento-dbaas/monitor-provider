@@ -4,6 +4,7 @@ from monitor_provider.providers import constants
 from monitor_provider.models.models import (
     ServiceMonitor,
     HostMonitor,
+    MysqlMonitor,
     TcpMonitor,
     WebMonitor,
     DatabaseMonitor,
@@ -365,4 +366,50 @@ class ProviderBase(object):
                 monitor_environment=self.environment
             ).get()
         except TcpMonitor.DoesNotExist:
+            return None
+
+    def _create_mysql_monitor(self, db, **kwargs):
+        raise NotImplementedError
+
+    def create_mysql_monitor(self, **kwargs):
+        mandatory_fields = ["host", "port", "version"]
+        self.check_mandatory_fields(mandatory_fields, **kwargs)
+
+        db = MysqlMonitor()
+        db.monitor_provider = self.provider
+        db.monitor_environment = self.environment
+        db.host = kwargs.get("host")
+        db.port = kwargs.get("port")
+        db.user = kwargs.get("user")
+        db.environment = kwargs.get("environment")
+        db.locality = kwargs.get("locality")
+        db.alarm = kwargs.get("alarm")
+        db.hostgroups = kwargs.get("hostgroups")
+        db.version = kwargs.get("version")
+
+        self._create_mysql_monitor(db, **kwargs)
+
+        db.save()
+        return db
+
+    def _delete_mysql_monitor(self, db):
+        raise NotImplementedError
+
+    def delete_mysql_monitor(self, identifier):
+        db = MysqlMonitor.objects(
+            identifier=identifier,
+            monitor_provider=self.provider,
+            monitor_environment=self.environment
+        ).get()
+        self._delete_mysql_monitor(db)
+        db.delete()
+
+    def get_mysql_monitor(self, identifier_or_name):
+        try:
+            return MysqlMonitor.objects(
+                identifier=identifier_or_name,
+                monitor_provider=self.provider,
+                monitor_environment=self.environment
+            ).get()
+        except MysqlMonitor.DoesNotExist:
             return None

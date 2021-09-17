@@ -126,8 +126,8 @@ Mandatory fields | Optional fields
 database_name, port, version, username, password, dns, topology | environment, cloud_name, machine_type
 
 Topology options are:
-- **SINGLE**: for PostgreSQL Single Instance
-- **STANDBY**: for PostgreSQL com Stand By Database
+- **POSTGRESQL_SINGLE**: for PostgreSQL Single Instance
+- **POSTGRESQL_STANDBY**: for PostgreSQL com Stand By Database
 
 ###### GET
 ```
@@ -178,4 +178,26 @@ curl -X GET '<monitor-provider_endpoint>/zabbix/<env>/tcp/identifier'
 ###### DELETE
 ```
 curl -X DELETE '<monitor-provider_endpoint>/zabbix/<env>/tcp/identifier'
+```
+
+### MySQLMonitor (Zabbix)
+###### ADD
+```
+curl -X POST '<monitor-provider_endpoint>/zabbix/<env>/mysql/new' -H 'Content-Type: application/json' -d '{"host": "host", "port": "port", "version": "version"}'
+```
+
+Mandatory fields | Optional fields
+------------ | -------------
+host, port, version | environment, locality, alarm, hostgroups, version, user, password, healthcheck
+
+**healthcheck** is an optional boolean field. To enable it just pass it along with data as ```"healthcheck": true```
+
+###### GET
+```
+curl -X GET '<monitor-provider_endpoint>/zabbix/<env>/mysql/identifier'
+```
+
+###### DELETE
+```
+curl -X DELETE '<monitor-provider_endpoint>/zabbix/<env>/mysql/identifier'
 ```

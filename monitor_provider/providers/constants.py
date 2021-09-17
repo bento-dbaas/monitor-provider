@@ -1,40 +1,52 @@
 CASSANDRA = 'cassandra'
 POSTGRESQL = 'postgresql'
+MYSQL = 'mysql'
 
-VALID_DBMS = (CASSANDRA, POSTGRESQL)
+VALID_DBMS = (CASSANDRA, POSTGRESQL, MYSQL)
 
 MANDATORY_FIELDS = {
     CASSANDRA: ['database_name', 'port', 'version', 'username', 'password'],
-    POSTGRESQL: ['database_name', 'port', 'version', 'username', 'password', 'dns', 'topology']
+    POSTGRESQL: ['database_name', 'port', 'version', 'username', 'password', 'dns', 'topology'],
+    MYSQL: ['database_name', 'port', 'version', 'username', 'password', 'dns', 'topology']
 }
 
 SGBD_CASSANDRA = 'C'
+SGBD_MYSQL = 'M'
 SGBD_POSTGRESQL = 'P'
 SGBD_CHOICES = {
     SGBD_CASSANDRA: "Cassandra",
-    SGBD_POSTGRESQL: "PostgreSQL"
+    SGBD_POSTGRESQL: "PostgreSQL",
+    SGBD_MYSQL: 'MySQL'
 }
 
 SGBD = {
     CASSANDRA: SGBD_CASSANDRA,
+    MYSQL: SGBD_MYSQL,
     POSTGRESQL: SGBD_POSTGRESQL
 }
 
+MYSQL_SINGLE = 1
+MYSQL_FOXHA = 3
 CASSANDRA_CLUSTER = 18
 POSTGRESQL_SINGLE = 19
 POSTGRESQL_STAND_BY = 20
 
 TOPOLOGY = {
-    'SINGLE': POSTGRESQL_SINGLE,
-    'STANDBY': POSTGRESQL_STAND_BY
+    'POSTGRESQL_SINGLE': POSTGRESQL_SINGLE,
+    'POSTGRESQL_STANDBY': POSTGRESQL_STAND_BY,
+    'MYSQL_SINGLE': MYSQL_SINGLE,
+    'MYSQL_FOXHA': MYSQL_FOXHA
 }
 
 TOPOLOGIA_CHOICES = {
     CASSANDRA_CLUSTER: "Cassandra Cluster",
     POSTGRESQL_SINGLE: "PostgreSQL Single Instance",
-    POSTGRESQL_STAND_BY: "PostgreSQL com Stand By Database"
+    POSTGRESQL_STAND_BY: "PostgreSQL com Stand By Database",
+    MYSQL_SINGLE: "MySQL Single Instance",
+    MYSQL_FOXHA: "MySQL FOXHA"
 }
 
+INSTANCIA_MYSQL = 1
 INSTANCIA_POSTGRESQL = 16
 INSTANCIA_POSTGRESQL_STAND_BY = 17
 INSTANCIA_CASSANDRA = 18
@@ -42,7 +54,8 @@ INSTANCIA_CASSANDRA = 18
 INSTANCIA = {
     CASSANDRA_CLUSTER: INSTANCIA_CASSANDRA,
     POSTGRESQL_SINGLE: INSTANCIA_POSTGRESQL,
-    POSTGRESQL_STAND_BY: INSTANCIA_POSTGRESQL_STAND_BY
+    POSTGRESQL_STAND_BY: INSTANCIA_POSTGRESQL_STAND_BY,
+    MYSQL_FOXHA: INSTANCIA_MYSQL
 }
 
 class Constants:
