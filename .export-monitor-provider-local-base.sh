@@ -1,0 +1,5 @@
+## Dev
+export APP_PASSWORD=
+export APP_USERNAME=
+export DBAAS_MONGODB_ENDPOINT=
+export MONGODB_DB=
