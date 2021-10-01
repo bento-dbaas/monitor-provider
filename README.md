@@ -109,7 +109,7 @@ curl -X DELETE '<monitor-provider_endpoint>/<provider_name>/<env>/web/identifier
 ### Database Monitor (Cassandra, PostgreSQL) (DBMonitor only)
 ###### ADD
 ```
-curl -X POST -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/database/<database>/new' -H 'Content-Type: application/json' -d '{"database_name": "NAME", "environment": "ENVIRONMENT", "port": "PORT", "username": "USERNAME", "password": "PASSWORD", "version": "VERSION", "cloud_name": "CLOUD_NAME"}'
+curl -X POST -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/database/<database>/new' -H 'Content-Type: application/json' -d '{"database_name": "NAME", "dns": "DNS", "port": "PORT", "username": "USERNAME", "password": "PASSWORD", "version": "VERSION", "topology": "POSTGRESQL_SINGLE"}'
 ```
 Database options are: **cassandra**, **postgresql**
 
@@ -142,7 +142,7 @@ curl -X DELETE -u app_username:app_password '<monitor-provider_endpoint>/<provid
 ### Instance Monitor (Cassandra, PostgreSQL) (DBMonitor only)
 ###### ADD
 ```
-curl -X POST -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/instance/<database>/new' -H 'Content-Type: application/json' -d '{"instance_name": "INSTANCE_NAME", "dns": "DNS", "port": "PORT", "database_name": "DATABASE_NAME", "disk_path": "DISK_PATH", "machine": "MACHINE"}'
+curl -X POST -u app_username:app_password '<monitor-provider_endpoint>/<provider_name>/<env>/instance/<database>/new' -H 'Content-Type: application/json' -d '{"instance_name": "INSTANCE_NAME", "dns": "DNS", "port": "PORT", "database_name": "DATABASE_NAME"}'
 ```
 Database options are: **cassandra**, **postgresql**
 
