@@ -172,7 +172,7 @@ class ProviderDBMonitor(ProviderBase):
             ativo=dbms.active,
             nome=dbms.database_name,
             tipo=dbms.environment_id,
-            tipo_maquina = dbms.machine_type_id,
+            tipo_maquina=dbms.machine_type_id,
             porta=dbms.port,
             dns=dbms.dns,
             versao=dbms.version,
@@ -180,7 +180,8 @@ class ProviderDBMonitor(ProviderBase):
             senha=password,
             cloud_id=dbms.cloud_id,
             sgbd=dbms.sgbd_type_id,
-            topologia=dbms.topology_type_id
+            topologia=dbms.topology_type_id,
+            maquina=dbms.machine
         )
 
         database.save()

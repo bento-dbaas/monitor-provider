@@ -112,6 +112,7 @@ class ProviderBase(object):
         dbms.environment = kwargs.get('environment')
         dbms.cloud_name = kwargs.get('cloud_name')
         dbms.machine_type = kwargs.get('machine_type')
+        dbms.machine = kwargs.get('machine')
         self._create_database_monitor(dbms, dbms_name, **kwargs)
 
         dbms.save()
