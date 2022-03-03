@@ -1,4 +1,4 @@
-from monitor_provider.providers.constants import Constants
+from monitor_provider.providers.constants import Constants, POSTGRESQL_STAND_BY
 
 from monitor_provider.credentials.dbmonitor import (
         CredentialDBMonitor, CredentialAddDBMonitor
@@ -140,6 +140,8 @@ class ProviderDBMonitor(ProviderBase):
         dbms.sgbd_type_id = constants.sgbd_id
         dbms.sgbd = constants.sgbd_name
 
+        is_cluster = constants.topology_id == POSTGRESQL_STAND_BY
+
         if not dbms.environment:
             dbms.environment = self.credential.default_environment
         environment = slugify(dbms.environment)
@@ -181,7 +183,8 @@ class ProviderDBMonitor(ProviderBase):
             cloud_id=dbms.cloud_id,
             sgbd=dbms.sgbd_type_id,
             topologia=dbms.topology_type_id,
-            maquina=dbms.machine
+            maquina=dbms.machine,
+            flag_cluster=is_cluster
         )
 
         database.save()
