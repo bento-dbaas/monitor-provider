@@ -142,9 +142,9 @@ class ProviderDBMonitor(ProviderBase):
         dbms.topology_name = constants.topology_name
         dbms.sgbd_type_id = constants.sgbd_id
         dbms.sgbd = constants.sgbd_name
-        
 
-        organization_name = kwargs.get('organization_name', self.credential.default_organization_name)
+        organization_name = kwargs.get(
+            'organization_name', self.credential.default_organization_name)
         organization_id = self.get_organization_by_name(organization_name)
 
         is_cluster = constants.topology_id == POSTGRESQL_STAND_BY
@@ -343,4 +343,3 @@ class ProviderDBMonitor(ProviderBase):
             logging.error(msg)
             raise Exception(msg)
         return org.id
-
