@@ -1,3 +1,4 @@
+import logging
 from monitor_provider.providers.constants import Constants, POSTGRESQL_STAND_BY
 
 from monitor_provider.credentials.dbmonitor import (
@@ -14,6 +15,8 @@ from monitor_provider.models.dbmonitor_models import (
     DbmonitorInstancia)
 from peewee import MySQLDatabase, fn
 from slugify import slugify
+
+logging.basicConfig()
 
 AMBIENTE_PRODUCAO = 'P'
 AMBIENTE_DEV = 'D'
@@ -139,6 +142,10 @@ class ProviderDBMonitor(ProviderBase):
         dbms.topology_name = constants.topology_name
         dbms.sgbd_type_id = constants.sgbd_id
         dbms.sgbd = constants.sgbd_name
+        
+
+        organization_name = kwargs.get('organization_name', self.credential.default_organization_name)
+        organization_id = self.get_organization_by_name(organization_name)
 
         is_cluster = constants.topology_id == POSTGRESQL_STAND_BY
 
@@ -184,7 +191,8 @@ class ProviderDBMonitor(ProviderBase):
             sgbd=dbms.sgbd_type_id,
             topologia=dbms.topology_type_id,
             maquina=dbms.machine,
-            flag_cluster=is_cluster
+            flag_cluster=is_cluster,
+            organizacao=organization_id
         )
 
         database.save()
