@@ -149,8 +149,8 @@ class ProviderDBMonitor(ProviderBase):
             'organization_name', self.credential.default_organization_name)
         organization_id = self.get_organization_by_name(organization_name)
 
-        is_cluster = constants.topology_id in [
-            POSTGRESQL_STAND_BY, CASSANDRA_CLUSTER]
+        is_cluster = constants.topology_id in (
+            POSTGRESQL_STAND_BY, CASSANDRA_CLUSTER)
 
         if not dbms.environment:
             dbms.environment = self.credential.default_environment
