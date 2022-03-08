@@ -117,13 +117,13 @@ Cassandra fields:
 
 Mandatory fields | Optional fields
 ------------ | -------------
-database_name, port, version, username, password | environment, cloud_name, machine_type
+database_name, port, version, username, password | environment, cloud_name, machine_type, organization_name
 
 PostgreSQL fields:
 
 Mandatory fields | Optional fields
 ------------ | -------------
-database_name, port, version, username, password, dns, topology | environment, cloud_name, machine_type
+database_name, port, version, username, password, dns, topology | environment, cloud_name, machine_type, organization_name
 
 Topology options are:
 - **POSTGRESQL_SINGLE**: for PostgreSQL Single Instance

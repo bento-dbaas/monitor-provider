@@ -1,4 +1,7 @@
-from monitor_provider.providers.constants import Constants
+import logging
+from monitor_provider.providers.constants import (
+            Constants,
+            POSTGRESQL_STAND_BY, CASSANDRA_CLUSTER)
 
 from monitor_provider.credentials.dbmonitor import (
         CredentialDBMonitor, CredentialAddDBMonitor
@@ -14,6 +17,8 @@ from monitor_provider.models.dbmonitor_models import (
     DbmonitorInstancia)
 from peewee import MySQLDatabase, fn
 from slugify import slugify
+
+logging.basicConfig()
 
 AMBIENTE_PRODUCAO = 'P'
 AMBIENTE_DEV = 'D'
@@ -140,6 +145,13 @@ class ProviderDBMonitor(ProviderBase):
         dbms.sgbd_type_id = constants.sgbd_id
         dbms.sgbd = constants.sgbd_name
 
+        organization_name = kwargs.get(
+            'organization_name', self.credential.default_organization_name)
+        organization_id = self.get_organization_by_name(organization_name)
+
+        is_cluster = constants.topology_id in (
+            POSTGRESQL_STAND_BY, CASSANDRA_CLUSTER)
+
         if not dbms.environment:
             dbms.environment = self.credential.default_environment
         environment = slugify(dbms.environment)
@@ -181,7 +193,9 @@ class ProviderDBMonitor(ProviderBase):
             cloud_id=dbms.cloud_id,
             sgbd=dbms.sgbd_type_id,
             topologia=dbms.topology_type_id,
-            maquina=dbms.machine
+            maquina=dbms.machine,
+            flag_cluster=is_cluster,
+            organizacao=organization_id
         )
 
         database.save()
@@ -332,4 +346,3 @@ class ProviderDBMonitor(ProviderBase):
             logging.error(msg)
             raise Exception(msg)
         return org.id
-
