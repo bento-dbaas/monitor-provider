@@ -8,7 +8,8 @@ from monitor_provider.models.models import (
     TcpMonitor,
     WebMonitor,
     DatabaseMonitor,
-    InstanceMonitor)
+    InstanceMonitor,
+    MongoDbMonitor)
 
 
 class ProviderBase(object):
@@ -413,4 +414,52 @@ class ProviderBase(object):
                 monitor_environment=self.environment
             ).get()
         except MysqlMonitor.DoesNotExist:
+            return None
+
+
+
+    def _create_mongodb_monitor(self, db, **kwargs):
+        raise NotImplementedError
+
+    def create_mongodb_monitor(self, **kwargs):
+        mandatory_fields = ["host", "port", "mongo_version"]
+        self.check_mandatory_fields(mandatory_fields, **kwargs)
+
+        db = MongoDbMonitor()
+        db.monitor_provider = self.provider
+        db.monitor_environment = self.environment
+        db.host = kwargs.get("host")
+        db.port = kwargs.get("port")
+        db.user = kwargs.get("user")
+        db.environment = kwargs.get("environment")
+        db.locality = kwargs.get("locality")
+        db.alarm = kwargs.get("alarm")
+        db.hostgroups = kwargs.get("hostgroups")
+        db.mongo_version = kwargs.get("mongo_version")
+
+        self._create_mongodb_monitor(db, **kwargs)
+
+        db.save()
+        return db
+
+    def _delete_mongodb_monitor(self, db):
+        raise NotImplementedError
+
+    def delete_mongodb_monitor(self, identifier):
+        db = MongoDbMonitor.objects(
+            identifier=identifier,
+            monitor_provider=self.provider,
+            monitor_environment=self.environment
+        ).get()
+        self._delete_mongodb_monitor(db)
+        db.delete()
+
+    def get_mongodb_monitor(self, identifier_or_name):
+        try:
+            return MongoDbMonitor.objects(
+                identifier=identifier_or_name,
+                monitor_provider=self.provider,
+                monitor_environment=self.environment
+            ).get()
+        except MongoDbMonitor.DoesNotExist:
             return None

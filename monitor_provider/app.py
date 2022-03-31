@@ -1,492 +1,61 @@
+import os
 import logging
-import json
-from bson import json_util
-from traceback import print_exc
-from flask import Flask, request, jsonify, make_response
-from flask_httpauth import HTTPBasicAuth
-from mongoengine import connect
-from monitor_provider.providers.constants import VALID_DBMS
-from monitor_provider.providers import get_provider_to
-from monitor_provider.settings import (
-    APP_USERNAME,
-    APP_PASSWORD,
-    LOGGING_LEVEL,
-    MONGODB_DB,
-    MONGODB_PARAMS)
+import werkzeug
+import flask.scaffold
+werkzeug.cached_property = werkzeug.utils.cached_property
+flask.helpers._endpoint_from_view_func = flask.scaffold._endpoint_from_view_func
+from flask import Flask, Blueprint
+from monitor_provider.api.restplus import api
+from monitor_provider.api.credential.endpoint.credential import ns as credential_namespace
+from monitor_provider.api.database_monitor.endpoint.database_monitor import ns as database_monitor_namespace
+from monitor_provider.api.host_monitor.endpoint.host_monitor import ns as host_monitor_namespace
+from monitor_provider.api.instance_monitor.endpoint.instance_monitor import ns as instance_monitor_namespace
+from monitor_provider.api.mysql_monitor.endpoint.mysql_monitor import ns as mysql_monitor_namespace
+from monitor_provider.api.service_monitor.endpoint.service_monitor import ns as service_monitor_namespace
+from monitor_provider.api.tcp_monitor.endpoint.tcp_monitor import ns as tcp_monitor_namespace
+from monitor_provider.api.web_monitor.endpoint.web_monitor import ns as web_monitor_namespace
+from flask_mongoengine import MongoEngine
+from monitor_provider import settings
 
+db = MongoEngine()
 app = Flask(__name__)
-auth = HTTPBasicAuth()
-connect(MONGODB_DB, **MONGODB_PARAMS)
+log = logging.getLogger(__name__)
 logging.basicConfig(
-    level=LOGGING_LEVEL,
+    level=settings.LOGGING_LEVEL,
     format='%(asctime)s %(filename)s(%(lineno)d) %(levelname)s: %(message)s')
 
 
-@auth.verify_password
-def verify_password(username, password):
-    if APP_USERNAME and username != APP_USERNAME:
-        return False
-
-    if APP_PASSWORD and password != APP_PASSWORD:
-        return False
-
-    return True
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/credential/new",
-    methods=['POST'])
-@auth.login_required
-def create_credential(provider_name, env):
-    data = json.loads(request.data or 'null')
-    if not data:
-        logging.error("No data")
-        return response_invalid_request("No data".format(data))
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        success, message = provider.credential_add(data)
-    except Exception as e:
-        print_exc()  # TODO Improve log
-        return response_invalid_request(str(e))
-
-    if not success:
-        return response_invalid_request(message)
-    return response_created(success=success, id=str(message))
-
-
-@app.route(
-    "/<string:provider_name>/credentials",
-    methods=['GET'])
-@auth.login_required
-def get_all_credential(provider_name):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(None)
-        return make_response(
-            json.dumps(
-                list(map(lambda x: x, provider.credential.all())),
-                default=json_util.default
-            )
-        )
-    except Exception as e:
-        print_exc()  # TODO Improve log
-        return response_invalid_request(str(e))
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/credential",
-    methods=['GET'])
-@auth.login_required
-def get_credential(provider_name, env):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        credential = provider.credential.get_by(environment=env)
-    except Exception as e:
-        print_exc()  # TODO Improve log
-        return response_invalid_request(str(e))
-
-    if credential.count() == 0:
-        return response_not_found('{}/{}'.format(provider_name, env))
-    return make_response(json.dumps(credential[0], default=json_util.default))
-
-
-@app.route("/<string:provider_name>/<string:env>/credential", methods=['PUT'])
-@auth.login_required
-def update_credential(provider_name, env):
-    return create_credential(provider_name, env)
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/credential",
-    methods=['DELETE'])
-@auth.login_required
-def destroy_credential(provider_name, env):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        deleted = provider.credential.delete()
-    except Exception as e:
-        print_exc()  # TODO Improve log
-        return response_invalid_request(str(e))
-
-    if deleted['n'] > 0:
-        return response_ok()
-    return response_not_found("{}-{}".format(provider_name, env))
-
-
-def response_invalid_request(error, status_code=500):
-    return _response(status_code, error=error)
-
-
-def response_not_found(identifier):
-    error = "Could not found with {}".format(identifier)
-    return _response(404, error=error)
-
-
-def response_created(status_code=201, **kwargs):
-    return _response(status_code, **kwargs)
-
-
-def response_ok(**kwargs):
-    if kwargs:
-        return _response(200, **kwargs)
-    return _response(200, message="ok")
-
-
-def _response(status, **kwargs):
-    content = jsonify(**kwargs)
-    return make_response(content, status)
-
-
-@app.route("/<string:provider_name>/<string:env>/service/new",
-    methods=['POST'])
-@auth.login_required
-def create_service_monitor(provider_name, env):
-    data = json.loads(request.data or 'null')
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        service = provider.create_service_monitor(**data)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-    return response_created(success=True, identifier=service.identifier)
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/service/<string:identifier_or_name>",
-    methods=['GET'])
-@auth.login_required
-def get_service_monitor(provider_name, env, identifier_or_name):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-
-    service = provider.get_service_monitor(identifier_or_name)
-    if not service:
-        return response_not_found(identifier_or_name)
-    return response_ok(**service.get_json)
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/service/<string:identifier>",
-    methods=['DELETE'])
-@auth.login_required
-def delete_service_monitor(provider_name, env, identifier):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        provider.delete_service_monitor(identifier)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-    return response_ok()
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/host/new",
-    methods=['POST'])
-@auth.login_required
-def create_host_monitor(provider_name, env):
-    data = json.loads(request.data or 'null')
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        host = provider.create_host_monitor(**data)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-    return response_created(success=True, identifier=host.identifier)
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/host/<string:identifier_or_name>",
-    methods=['GET'])
-@auth.login_required
-def get_host_monitor(provider_name, env, identifier_or_name):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-
-    host = provider.get_host_monitor(identifier_or_name)
-    if not host:
-        return response_not_found(identifier_or_name)
-    return response_ok(**host.get_json)
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/host/<string:identifier>",
-    methods=['DELETE'])
-@auth.login_required
-def delete_host_monitor(provider_name, env, identifier):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        provider.delete_host_monitor(identifier)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-    return response_ok()
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/web/new",
-    methods=['POST'])
-@auth.login_required
-def create_web_monitor(provider_name, env):
-    data = json.loads(request.data or 'null')
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        web = provider.create_web_monitor(**data)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-    return response_created(success=True, identifier=web.identifier)
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/web/<string:identifier_or_name>",
-    methods=['GET'])
-@auth.login_required
-def get_web_monitor(provider_name, env, identifier_or_name):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-
-    host = provider.get_web_monitor(identifier_or_name)
-    if not host:
-        return response_not_found(identifier_or_name)
-    return response_ok(**host.get_json)
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/web/<string:identifier>",
-    methods=['DELETE'])
-@auth.login_required
-def delete_web_monitor(provider_name, env, identifier):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        provider.delete_web_monitor(identifier)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-    return response_ok()
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/database/<string:dbms>/new",
-    methods=['POST'])
-@auth.login_required
-def create_database_monitor(provider_name, env, dbms):
-    if dbms not in VALID_DBMS:
-        return response_invalid_request(
-            'Invalid database. Available options are {}'.format(list(VALID_DBMS))
-        )
-
-    data = json.loads(request.data or 'null')
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        monitor = provider.create_database_monitor(dbms_name=dbms, **data)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-
-    return response_created(success=True, identifier=monitor.identifier)
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/database/<string:identifier_or_name>",
-    methods=['GET'])
-@auth.login_required
-def get_database_monitor(provider_name, env, identifier_or_name):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-
-    database = provider.get_database_monitor(identifier_or_name)
-    if not database:
-        return response_not_found(identifier_or_name)
-    return response_ok(**database.get_json)
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/database/<string:database_name>",
-    methods=['DELETE'])
-@auth.login_required
-def delete_database_monitor(provider_name, env, database_name):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        provider.delete_database_monitor(database_name)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-    return response_ok()
-
-@app.route(
-    "/<string:provider_name>/<string:env>/instance/<string:dbms>/new",
-    methods=['POST'])
-@auth.login_required
-def create_instance_monitor(provider_name, env, dbms):
-    if dbms not in VALID_DBMS:
-        return response_invalid_request(
-            'Invalid database. Available options are {}'.format(list(VALID_DBMS))
-        )
-
-    data = json.loads(request.data or 'null')
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        monitor = provider.create_instance_monitor(dbms_name=dbms, **data)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-    return response_created(success=True, identifier=monitor.identifier)
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/instance/<string:identifier_or_name>",
-    methods=['GET'])
-@auth.login_required
-def get_instance_monitor(provider_name, env, identifier_or_name):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-
-    database = provider.get_instance_monitor(identifier_or_name)
-    if not database:
-        return response_not_found(identifier_or_name)
-    return response_ok(**database.get_json)
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/instance/<string:instance_name>",
-    methods=['DELETE'])
-@auth.login_required
-def delete_instance_monitor(provider_name, env, instance_name):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        provider.delete_instance_monitor(instance_name)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-    return response_ok()
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/tcp/new",
-    methods=['POST'])
-@auth.login_required
-def create_tcp_monitor(provider_name, env):
-    data = json.loads(request.data or 'null')
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        tcp = provider.create_tcp_monitor(**data)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-    return response_created(success=True, identifier=tcp.identifier)
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/tcp/<string:identifier_or_name>",
-    methods=['GET'])
-@auth.login_required
-def get_tcp_monitor(provider_name, env, identifier_or_name):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-
-    tcp = provider.get_tcp_monitor(identifier_or_name)
-    if not tcp:
-        return response_not_found(identifier_or_name)
-    return response_ok(**tcp.get_json)
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/tcp/<string:identifier>",
-    methods=['DELETE'])
-@auth.login_required
-def delete_tcp_monitor(provider_name, env, identifier):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        provider.delete_tcp_monitor(identifier)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-    return response_ok()
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/mysql/new",
-    methods=['POST'])
-@auth.login_required
-def create_mysql_monitor(provider_name, env):
-    data = json.loads(request.data or 'null')
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        db = provider.create_mysql_monitor(**data)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-    return response_created(success=True, identifier=db.identifier)
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/mysql/<string:identifier_or_name>",
-    methods=['GET'])
-@auth.login_required
-def get_mysql_monitor(provider_name, env, identifier_or_name):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-
-    db = provider.get_mysql_monitor(identifier_or_name)
-    if not db:
-        return response_not_found(identifier_or_name)
-    return response_ok(**db.get_json)
-
-
-@app.route(
-    "/<string:provider_name>/<string:env>/mysql/<string:identifier>",
-    methods=['DELETE'])
-@auth.login_required
-def delete_mysql_monitor(provider_name, env, identifier):
-    try:
-        provider_cls = get_provider_to(provider_name)
-        provider = provider_cls(env)
-        provider.delete_mysql_monitor(identifier)
-    except Exception as e:
-        print_exc()
-        return response_invalid_request(str(e))
-    return response_ok()
+def configure_app(flask_app):
+    flask_app.config['MONGODB_SETTINGS'] = settings.MONGODB_PARAMS
+    flask_app.config['SWAGGER_UI_DOC_EXPANSION'] = settings.RESTPLUS_SWAGGER_UI_DOC_EXPANSION
+    flask_app.config['RESTPLUS_VALIDATE'] = settings.RESTPLUS_VALIDATE
+    flask_app.config['RESTPLUS_MASK_SWAGGER'] = settings.RESTPLUS_MASK_SWAGGER
+    flask_app.config['ERROR_404_HELP'] = settings.RESTPLUS_ERROR_404_HELP
+
+
+def initialize_app(flask_app):
+    configure_app(flask_app)
+    blueprint = Blueprint('api', __name__, url_prefix='/')
+    api.init_app(blueprint)
+    api.add_namespace(credential_namespace)
+    api.add_namespace(database_monitor_namespace)
+    api.add_namespace(host_monitor_namespace)
+    api.add_namespace(instance_monitor_namespace)
+    api.add_namespace(mysql_monitor_namespace)
+    api.add_namespace(service_monitor_namespace)
+    api.add_namespace(tcp_monitor_namespace)
+    api.add_namespace(web_monitor_namespace)
+    flask_app.register_blueprint(blueprint)
+    db.init_app(flask_app)
+
+
+def main():
+    log.info('>>>>> Starting development server at http://{}/api/ <<<<<'.format('localhost:5000'))
+    app.run(debug=True)
+
+
+initialize_app(app)
+
+
+if __name__ == '__main__':
+    main()
