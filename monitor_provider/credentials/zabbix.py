@@ -35,6 +35,22 @@ class CredentialZabbix(CredentialBase):
     def alarm(self):
         return self.content['alarm']
 
+    @property
+    def mysql_user(self):
+        return self.content['mysql_user']
+
+    @property
+    def mysql_password(self):
+        return self.content['mysql_password']
+
+    @property
+    def mongodb_user(self):
+        return self.content['mongodb_user']
+
+    @property
+    def mongo_password(self):
+        return self.content['mongo_password']
+
 
 class CredentialAddZabbix(CredentialAdd):
 
@@ -42,5 +58,6 @@ class CredentialAddZabbix(CredentialAdd):
     def valid_fields(self):
         return [
             'user', 'password', 'endpoint', 'alarm', 'default_environment',
-            'default_db_environment', 'default_locality', 'default_hostgroups'
+            'default_db_environment', 'default_locality', 'default_hostgroups',
+            'mysql_user', 'mysql_password', 'mongodb_user', 'mongo_password'
         ]

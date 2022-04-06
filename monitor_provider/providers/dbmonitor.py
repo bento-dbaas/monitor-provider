@@ -1,7 +1,8 @@
 import logging
 from monitor_provider.providers.constants import (
             Constants,
-            POSTGRESQL_STAND_BY, CASSANDRA_CLUSTER)
+            POSTGRESQL_STAND_BY, CASSANDRA_CLUSTER,
+            MONGODB_REPLICA_SET)
 
 from monitor_provider.credentials.dbmonitor import (
         CredentialDBMonitor, CredentialAddDBMonitor
@@ -150,7 +151,7 @@ class ProviderDBMonitor(ProviderBase):
         organization_id = self.get_organization_by_name(organization_name)
 
         is_cluster = constants.topology_id in (
-            POSTGRESQL_STAND_BY, CASSANDRA_CLUSTER)
+            POSTGRESQL_STAND_BY, CASSANDRA_CLUSTER, MONGODB_REPLICA_SET)
 
         if not dbms.environment:
             dbms.environment = self.credential.default_environment

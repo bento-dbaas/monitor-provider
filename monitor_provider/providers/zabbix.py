@@ -142,11 +142,11 @@ class ProviderZabbix(ProviderBase):
             db.alarm = self.credential.alarm
 
         if not db.user:
-            db.user = self.credential.user
+            db.user = self.credential.mysql_user
 
         password = kwargs.get("password")
         if password is None:
-            password = self.credential.password
+            password = self.credential.mysql_password
 
         data = {
             'environment': db.environment,
@@ -185,3 +185,52 @@ class ProviderZabbix(ProviderBase):
             data[option] = kwargs.get(option)
 
         self.zapi.globo.createMySQLMonitors(**data)
+
+    def _delete_mongodb_monitor(self, db):
+        data = {'host': db.identifier}
+        self.zapi.globo.deleteMonitors(**data)
+
+    def _create_mongodb_monitor(self, db, **kwargs):
+        db.identifier = db.host
+
+        if not db.environment:
+            db.environment = self.credential.default_db_environment
+
+        if not db.locality:
+            db.locality = self.credential.default_locality
+
+        if not db.hostgroups:
+            db.hostgroups = self.credential.default_hostgroups
+
+        if not db.alarm:
+            db.alarm = self.credential.alarm
+
+        if not db.user:
+            db.user = self.credential.mongodb_user
+
+        password = kwargs.get("password")
+        if password is None:
+            password = self.credential.mongo_password
+
+        data = {
+            'environment': db.environment,
+            'locality': db.locality,
+            'hostgroups': db.hostgroups,
+            'alarm': db.alarm,
+            'host': db.host,
+            'port': db.port,
+            'user': db.user,
+            'mongo_version': db.mongo_version,
+            'password': password,
+        }
+
+        opt = (
+            'ssl_support', 'notification_email', 'notification_slack', 'notification_telegram',
+            'replicaset', 'zbx_proxy', 'notes', 'extended', 'doc'
+        )
+        for option in opt:
+            if kwargs.get(option, None) is None:
+                continue
+            data[option] = kwargs.get(option)
+
+        self.zapi.globo.createMongoMonitors(**data)

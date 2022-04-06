@@ -1,32 +1,39 @@
 CASSANDRA = 'cassandra'
 POSTGRESQL = 'postgresql'
 MYSQL = 'mysql'
+MONGODB = 'mongodb'
 
-VALID_DBMS = (CASSANDRA, POSTGRESQL, MYSQL)
+VALID_DBMS = (CASSANDRA, POSTGRESQL, MYSQL, MONGODB)
 
 MANDATORY_FIELDS = {
     CASSANDRA: ['database_name', 'port', 'version', 'username', 'password'],
     POSTGRESQL: ['database_name', 'port', 'version', 'username', 'password', 'dns', 'topology'],
-    MYSQL: ['database_name', 'port', 'version', 'username', 'password', 'dns', 'topology']
+    MYSQL: ['database_name', 'port', 'version', 'username', 'password', 'dns', 'topology'],
+    MONGODB: ['database_name', 'port', 'version', 'username', 'password', 'dns', 'topology']
 }
 
 SGBD_CASSANDRA = 'C'
 SGBD_MYSQL = 'M'
 SGBD_POSTGRESQL = 'P'
+SGBD_MONGODB = 'G'
 SGBD_CHOICES = {
     SGBD_CASSANDRA: "Cassandra",
     SGBD_POSTGRESQL: "PostgreSQL",
-    SGBD_MYSQL: 'MySQL'
+    SGBD_MYSQL: 'MySQL',
+    SGBD_MONGODB: 'MongoDB'
 }
 
 SGBD = {
     CASSANDRA: SGBD_CASSANDRA,
     MYSQL: SGBD_MYSQL,
-    POSTGRESQL: SGBD_POSTGRESQL
+    POSTGRESQL: SGBD_POSTGRESQL,
+    MONGODB: SGBD_MONGODB
 }
 
 MYSQL_SINGLE = 1
 MYSQL_FOXHA = 3
+MONGODB_SINGLE = 9
+MONGODB_REPLICA_SET = 10
 CASSANDRA_CLUSTER = 18
 POSTGRESQL_SINGLE = 19
 POSTGRESQL_STAND_BY = 20
@@ -35,7 +42,9 @@ TOPOLOGY = {
     'POSTGRESQL_SINGLE': POSTGRESQL_SINGLE,
     'POSTGRESQL_STANDBY': POSTGRESQL_STAND_BY,
     'MYSQL_SINGLE': MYSQL_SINGLE,
-    'MYSQL_FOXHA': MYSQL_FOXHA
+    'MYSQL_FOXHA': MYSQL_FOXHA,
+    'MONGODB_SINGLE': MONGODB_SINGLE,
+    'MONGODB_REPLICA_SET': MONGODB_REPLICA_SET
 }
 
 TOPOLOGIA_CHOICES = {
@@ -43,10 +52,14 @@ TOPOLOGIA_CHOICES = {
     POSTGRESQL_SINGLE: "PostgreSQL Single Instance",
     POSTGRESQL_STAND_BY: "PostgreSQL com Stand By Database",
     MYSQL_SINGLE: "MySQL Single Instance",
-    MYSQL_FOXHA: "MySQL FOXHA"
+    MYSQL_FOXHA: "MySQL FOXHA",
+    MONGODB_SINGLE: "MongoDB Single Instance",
+    MONGODB_REPLICA_SET: "MongoDB Replica Set"
 }
 
 INSTANCIA_MYSQL = 1
+INSTANCIA_MONGODB = 4
+INSTANCIA_MONGODB_ARBITER = 5
 INSTANCIA_POSTGRESQL = 16
 INSTANCIA_POSTGRESQL_STAND_BY = 17
 INSTANCIA_CASSANDRA = 18
@@ -57,6 +70,12 @@ INSTANCIA = {
     POSTGRESQL_STAND_BY: INSTANCIA_POSTGRESQL_STAND_BY,
     MYSQL_FOXHA: INSTANCIA_MYSQL
 }
+
+INSTANCIA_CHOICES = {
+    'INSTANCIA_MONGODB': INSTANCIA_MONGODB,
+    'INSTANCIA_MONGODB_ARBITER': INSTANCIA_MONGODB_ARBITER
+}
+
 
 class Constants:
     def __init__(self, dbms, **kwargs):

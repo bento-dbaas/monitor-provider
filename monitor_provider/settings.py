@@ -23,3 +23,10 @@ APP_USERNAME = getenv("APP_USERNAME", None)
 APP_PASSWORD = getenv("APP_PASSWORD", None)
 
 LOGGING_LEVEL = int(getenv('LOGGING_LEVEL', logging.INFO))
+
+# Flask-Restplus settings
+RESTPLUS_SWAGGER_UI_DOC_EXPANSION = 'list'
+# Flask Restplus validate model via serializer default = False
+RESTPLUS_VALIDATE = False
+RESTPLUS_MASK_SWAGGER = False
+RESTPLUS_ERROR_404_HELP = False
