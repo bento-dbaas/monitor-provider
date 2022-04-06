@@ -147,7 +147,7 @@ class ProviderBase(object):
         raise NotImplementedError
 
     def create_instance_monitor(self, dbms_name, update_dns=False, **kwargs):
-        mandatory_fields = ['instance_name', 'dns', 'port', 'database_name', 'instance_type']
+        mandatory_fields = ['instance_name', 'dns', 'port', 'database_name']
         self.check_mandatory_fields(mandatory_fields, **kwargs)
 
         database = self.get_database_monitor(identifier_or_name=kwargs.get('database_name'))
@@ -165,8 +165,8 @@ class ProviderBase(object):
         instance_type = kwargs.get('instance_type')
         if not instance_type:
             try:
-                if dbms_name == 'mongodb':
-                    instance_type = constants.INSTANCIA_CHOICES[instance_type]
+                if dbms_name == constants.MONGODB:
+                    raise KeyError
                 else:
                     instance_type = constants.INSTANCIA[database.topology_type_id]
             except KeyError:
@@ -174,6 +174,9 @@ class ProviderBase(object):
 
         if dbms_name == constants.CASSANDRA:
             update_dns = True
+
+        if dbms_name == constants.MONGODB:
+            instance_type = constants.INSTANCIA_CHOICES[instance_type]
 
         instance = InstanceMonitor()
         instance.monitor_provider = self.provider

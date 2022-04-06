@@ -2,7 +2,7 @@ from flask_restplus import fields
 from monitor_provider.api.restplus import api
 
 mongodb_monitor_serializer = api.model('MongoDbMonitor', {
-    'host': fields.String(required=True, description='Host', max_length=15),
+    'host': fields.String(required=True, description='Host', max_length=200),
     'port': fields.String(required=True, description='Port', max_length=200),
     'mongo_version': fields.String(required=True, description='Mongo Versions: "3.0", "3.4", "4.0", "4.2"',
                                    max_length=5),

@@ -2,7 +2,7 @@ from flask_restplus import fields
 from monitor_provider.api.restplus import api
 
 tcp_monitor_serializer = api.model('TcpMonitor', {
-    'host': fields.String(required=True, description='Host', max_length=15),
+    'host': fields.String(required=True, description='Host', max_length=200),
     'port': fields.String(required=True, description='Port', max_length=200),
     'environment': fields.String(required=False, description='Environment', max_length=200),
     'locality': fields.String(required=False, description='Locality', max_length=200),
