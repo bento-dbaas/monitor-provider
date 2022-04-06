@@ -1,4 +1,3 @@
-import logging
 import json
 from flask import request
 from flask_restplus import Resource
@@ -16,6 +15,9 @@ class MysqlMonitorCreate(Resource):
     @api.expect(mysql_monitor_serializer)
     @auth.login_required()
     def post(self, env):
+        """
+        Create new MySQL Monitor for Zabbix
+        """
         data = json.loads(request.data or 'null')
         return create_mysql_monitor(provider_name, env, data)
 
@@ -25,7 +27,7 @@ class MysqlMonitorItemGet(Resource):
     @auth.login_required()
     def get(self, env, identifier_or_name):
         """
-        Return Service Monitor based on provider name and env
+        Return MySQL Monitor based on provider env, identifier_or_name
         """
         return get_mysql_monitor(provider_name, env, identifier_or_name)
 
@@ -35,6 +37,6 @@ class MysqlMonitorItemDelete(Resource):
     @auth.login_required()
     def delete(self, env, identifier):
         """
-        Delete Service Monitor based on provider name and env
+        Delete MySQL Monitor based on env, identifier
         """
         return delete_mysql_monitor(provider_name, env, identifier)

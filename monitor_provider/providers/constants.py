@@ -8,7 +8,8 @@ VALID_DBMS = (CASSANDRA, POSTGRESQL, MYSQL, MONGODB)
 MANDATORY_FIELDS = {
     CASSANDRA: ['database_name', 'port', 'version', 'username', 'password'],
     POSTGRESQL: ['database_name', 'port', 'version', 'username', 'password', 'dns', 'topology'],
-    MYSQL: ['database_name', 'port', 'version', 'username', 'password', 'dns', 'topology']
+    MYSQL: ['database_name', 'port', 'version', 'username', 'password', 'dns', 'topology'],
+    MONGODB: ['database_name', 'port', 'version', 'username', 'password', 'dns', 'topology']
 }
 
 SGBD_CASSANDRA = 'C'
@@ -67,9 +68,12 @@ INSTANCIA = {
     CASSANDRA_CLUSTER: INSTANCIA_CASSANDRA,
     POSTGRESQL_SINGLE: INSTANCIA_POSTGRESQL,
     POSTGRESQL_STAND_BY: INSTANCIA_POSTGRESQL_STAND_BY,
-    MYSQL_FOXHA: INSTANCIA_MYSQL,
-    MONGODB_SINGLE: INSTANCIA_MONGODB,
-    MONGODB_REPLICA_SET: INSTANCIA_MONGODB_ARBITER
+    MYSQL_FOXHA: INSTANCIA_MYSQL
+}
+
+INSTANCIA_CHOICES = {
+    'INSTANCIA_MONGODB': INSTANCIA_MONGODB,
+    'INSTANCIA_MONGODB_ARBITER': INSTANCIA_MONGODB_ARBITER
 }
 
 

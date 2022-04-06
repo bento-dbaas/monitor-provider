@@ -1,4 +1,3 @@
-import logging
 import json
 from flask import request
 from flask_restplus import Resource
@@ -15,7 +14,11 @@ class HostMonitorDbMonitorCollection(Resource):
     @api.response(201, "Credential successfully created")
     @api.expect(host_monitor_dbmonitor_serializer)
     @auth.login_required()
-    def post(self, provider_name, env):
+    def post(self, env):
+        """
+        Create new Host Monitor for DbMonitor
+        """
+        provider_name = 'dbmonitor'
         data = json.loads(request.data or 'null')
         return create_host_monitor(provider_name, env, data)
 
@@ -25,23 +28,31 @@ class HostMonitorDbMonitorCollection(Resource):
     @api.response(201, "Credential successfully created")
     @api.expect(host_monitor_zabbix_serializer)
     @auth.login_required()
-    def post(self, provider_name, env):
+    def post(self, env):
+        """
+        Create new Host Monitor for Zabbix
+        """
+        provider_name = 'zabbix'
         data = json.loads(request.data or 'null')
         return create_host_monitor(provider_name, env, data)
 
 
 @ns.route('/<string:provider_name>/<string:env>/host/<string:identifier_or_name>')
-class ServiceMonitorItem(Resource):
+class HostMonitorItemGet(Resource):
     @auth.login_required()
     def get(self, provider_name, env, identifier_or_name):
         """
-        Return Service Monitor based on provider name and env
+        Return Host Monitor based on provider name, env, identifier
         """
         return get_host_monitor(provider_name, env, identifier_or_name)
 
+
+@ns.route('/<string:provider_name>/<string:env>/host/<string:identifier>')
+class HostMonitorItemDelete(Resource):
     @auth.login_required()
-    def delete(self, provider_name, env, identifier_or_name):
+    def delete(self, provider_name, env, identifier):
         """
-        Delete Service Monitor based on provider name and env
+        Delete Host Monitor based on provider_name, env, identifier
         """
-        return delete_host_monitor(provider_name, env, identifier_or_name)
+        return delete_host_monitor(provider_name, env, identifier)
+

@@ -1,4 +1,3 @@
-import logging
 import json
 from flask import request
 from flask_restplus import Resource
@@ -16,22 +15,29 @@ class WebMonitorCollection(Resource):
     @api.expect(web_monitor_serializer)
     @auth.login_required()
     def post(self, env):
+        """
+        Create new Web Monitor for Zabbix
+        """
         data = json.loads(request.data or 'null')
         return create_web_monitor(provider_name, env, data)
 
 
 @ns.route('/zabbix/<string:env>/web/<string:identifier_or_name>')
-class ServiceMonitorItem(Resource):
+class WebMonitorItemGet(Resource):
     @auth.login_required()
     def get(self, env, identifier_or_name):
         """
-        Return Service Monitor based on provider name and env
+        Return Web Monitor based on env, identifier_or_name
         """
         return get_web_monitor(provider_name, env, identifier_or_name)
 
+
+@ns.route('/zabbix/<string:env>/web/<string:identifier>')
+class WebMonitorItemDelete(Resource):
     @auth.login_required()
-    def delete(self, env, identifier_or_name):
+    def delete(self, env, identifier):
         """
-        Delete Service Monitor based on provider name and env
+        Delete Web Monitor based on env, identifier
         """
-        return delete_web_monitor(provider_name, env, identifier_or_name)
+        return delete_web_monitor(provider_name, env, identifier)
+

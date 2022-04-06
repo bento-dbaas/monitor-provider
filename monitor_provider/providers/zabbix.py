@@ -142,11 +142,11 @@ class ProviderZabbix(ProviderBase):
             db.alarm = self.credential.alarm
 
         if not db.user:
-            db.user = self.credential.user
+            db.user = self.credential.mysql_user
 
         password = kwargs.get("password")
         if password is None:
-            password = self.credential.password
+            password = self.credential.mysql_password
 
         data = {
             'environment': db.environment,
@@ -206,11 +206,11 @@ class ProviderZabbix(ProviderBase):
             db.alarm = self.credential.alarm
 
         if not db.user:
-            db.user = self.credential.user
+            db.user = self.credential.mongodb_user
 
         password = kwargs.get("password")
         if password is None:
-            password = self.credential.password
+            password = self.credential.mongo_password
 
         data = {
             'environment': db.environment,

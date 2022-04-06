@@ -147,7 +147,7 @@ class ProviderBase(object):
         raise NotImplementedError
 
     def create_instance_monitor(self, dbms_name, update_dns=False, **kwargs):
-        mandatory_fields = ['instance_name', 'dns', 'port', 'database_name']
+        mandatory_fields = ['instance_name', 'dns', 'port', 'database_name', 'instance_type']
         self.check_mandatory_fields(mandatory_fields, **kwargs)
 
         database = self.get_database_monitor(identifier_or_name=kwargs.get('database_name'))
@@ -165,7 +165,10 @@ class ProviderBase(object):
         instance_type = kwargs.get('instance_type')
         if not instance_type:
             try:
-                instance_type = constants.INSTANCIA[database.topology_type_id]
+                if dbms_name == 'mongodb':
+                    instance_type = constants.INSTANCIA_CHOICES[instance_type]
+                else:
+                    instance_type = constants.INSTANCIA[database.topology_type_id]
             except KeyError:
                 raise Exception("An instance_type is mandatory")
 
@@ -298,7 +301,6 @@ class ProviderBase(object):
         web.save()
         return web
 
-
     def get_web_monitor(self, identifier):
         try:
             return WebMonitor.objects(
@@ -415,8 +417,6 @@ class ProviderBase(object):
             ).get()
         except MysqlMonitor.DoesNotExist:
             return None
-
-
 
     def _create_mongodb_monitor(self, db, **kwargs):
         raise NotImplementedError

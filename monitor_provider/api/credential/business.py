@@ -6,12 +6,26 @@ from monitor_provider.api.restplus import response_invalid_request, response_cre
 from flask import make_response
 from monitor_provider.providers import get_provider_to
 from traceback import print_exc
+from pymongo import MongoClient, ReturnDocument
+from monitor_provider.settings import MONGODB_PARAMS, MONGODB_DB
 
 
-def get_all_credentials(provider_name):
+def get_all_credentials():
+    client = MongoClient(**MONGODB_PARAMS)
+    db = client[MONGODB_DB]
+    return make_response(
+        json.dumps(
+            list(map(lambda x: x, list(db.credentials.find({})))),
+            default=json_util.default
+        )
+    )
+
+
+def get_all_credentials2(provider_name):
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(None)
+        print(provider.credential.all())
         return make_response(
             json.dumps(
                 list(map(lambda x: x, provider.credential.all())),
@@ -44,14 +58,14 @@ def get_credential(provider_name, env):
     try:
         provider_cls = get_provider_to(provider_name)
         provider = provider_cls(env)
-        credential = provider.credential.get_by(environment=env)
+        credential = list(provider.credential.get_by(environment=env))
     except Exception as e:
         print_exc()  # TODO Improve log
         return response_invalid_request(str(e))
 
-    if credential.count() == 0:
+    if len(credential) == 0:
         return response_not_found('{}/{}'.format(provider_name, env))
-    return make_response(json.dumps(credential[0], default=json_util.default))
+    return make_response(json.dumps(dict(credential[0]), default=json_util.default))
 
 
 def delete_credential(provider_name, env):

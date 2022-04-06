@@ -1,4 +1,3 @@
-import logging
 import json
 from flask import request
 from flask_restplus import Resource
@@ -17,22 +16,28 @@ class ServiceMonitorCollection(Resource):
     @api.expect(service_monitor_serializer)
     @auth.login_required()
     def post(self, env):
+        """
+        Create new Service Monitor for DbMonitor
+        """
         data = json.loads(request.data or 'null')
         return create_service_monitor(provider_name, env, data)
 
 
 @ns.route('/dbmonitor/<string:env>/service/<string:identifier_or_name>')
-class ServiceMonitorItem(Resource):
+class ServiceMonitorItemGet(Resource):
     @auth.login_required()
     def get(self, env, identifier_or_name):
         """
-        Return Service Monitor based on provider name and env
+        Return Service Monitor for DbMonitor based on env, identifier_or_name
         """
         return get_service_monitor(provider_name, env, identifier_or_name)
 
+
+@ns.route('/dbmonitor/<string:env>/service/<string:identifier>')
+class ServiceMonitorItemDelete(Resource):
     @auth.login_required()
-    def delete(self, env, identifier_or_name):
+    def delete(self, env, identifier):
         """
-        Delete Service Monitor based on provider name and env
+        Delete Service Monitor based on env, identifier
         """
-        return delete_service_monitor(provider_name, env, identifier_or_name)
+        return delete_service_monitor(provider_name, env, identifier)

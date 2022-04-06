@@ -1,8 +1,5 @@
-import logging
-import json
 from monitor_provider.providers.constants import VALID_DBMS
-from monitor_provider.api.restplus import response_invalid_request, response_created, response_not_found, response_ok, \
-    _response
+from monitor_provider.api.restplus import response_invalid_request, response_created, response_not_found, response_ok
 from monitor_provider.providers import get_provider_to
 from traceback import print_exc
 
