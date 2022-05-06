@@ -6,10 +6,11 @@ from monitor_provider.api.restplus import api, auth
 from monitor_provider.api.credential.business import get_all_credentials, create_credential, get_credential, \
     delete_credential
 
-ns = api.namespace('', description='Operations related to credential')
+ns = api.namespace(path='/', name='Credential', description='Operations related to credential')
 
 
 @ns.route('/<string:provider_name>/credentials')
+@ns.doc(params={'provider_name': 'This is the possible values to provider_name'})
 class CredentialCollection(Resource):
     @api.response(200, "Dns successfully listed")
     @auth.login_required()
@@ -21,6 +22,7 @@ class CredentialCollection(Resource):
 
 
 @ns.route('/dbmonitor/<string:env>/credential')
+@ns.doc(params={'env': 'This is the possible values to env'})
 class CredentialDbmonitorItem(Resource):
     @api.response(201, "Credential successfully created")
     @api.expect(credential_serializer_dbmonitor)
@@ -60,6 +62,7 @@ class CredentialDbmonitorItem(Resource):
 
 
 @ns.route('/zabbix/<string:env>/credential')
+@ns.doc(params={'env': 'This is the possible values to env'})
 class CredentialZabixItem(Resource):
     @api.response(201, "Credential successfully created")
     @api.expect(credential_serializer_zabbix)

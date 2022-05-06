@@ -6,11 +6,12 @@ from monitor_provider.api.restplus import api, auth
 from monitor_provider.api.service_monitor.business import create_service_monitor, get_service_monitor, \
     delete_service_monitor
 
-ns = api.namespace('', description='Operations related to service_monitor')
+ns = api.namespace(path='/', name='Service Monitor', description='Operations related to service_monitor')
 provider_name = 'dbmonitor'
 
 
 @ns.route('/dbmonitor/<string:env>/service/new')
+@ns.doc(params={'env': 'This is the possible values to env'})
 class ServiceMonitorCollection(Resource):
     @api.response(201, "Credential successfully created")
     @api.expect(service_monitor_serializer)
@@ -24,6 +25,8 @@ class ServiceMonitorCollection(Resource):
 
 
 @ns.route('/dbmonitor/<string:env>/service/<string:identifier_or_name>')
+@ns.doc(params={'env': 'This is the possible values to env',
+                'identifier_or_name': 'Identifier or name of Database'})
 class ServiceMonitorItemGet(Resource):
     @auth.login_required()
     def get(self, env, identifier_or_name):
@@ -34,6 +37,8 @@ class ServiceMonitorItemGet(Resource):
 
 
 @ns.route('/dbmonitor/<string:env>/service/<string:identifier>')
+@ns.doc(params={'env': 'This is the possible values to env',
+                'identifier': 'Identifier of Database'})
 class ServiceMonitorItemDelete(Resource):
     @auth.login_required()
     def delete(self, env, identifier):

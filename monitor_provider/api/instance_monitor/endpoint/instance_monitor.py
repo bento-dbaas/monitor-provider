@@ -6,7 +6,7 @@ from monitor_provider.api.restplus import api, auth
 from monitor_provider.api.instance_monitor.business import create_instance_monitor, get_instance_monitor, \
     delete_instance_monitor
 
-ns = api.namespace('', description='Operations related to service_monitor')
+ns = api.namespace(path='/', name='Instance Monitor', description='Operations related to instance_monitor')
 
 
 @ns.route('/<string:provider_name>/<string:env>/instance/<string:dbms>/new')

@@ -5,11 +5,12 @@ from monitor_provider.api.web_monitor.serializers import *
 from monitor_provider.api.restplus import api, auth
 from monitor_provider.api.web_monitor.business import create_web_monitor, get_web_monitor, delete_web_monitor
 
-ns = api.namespace('', description='Operations related to service_monitor')
+ns = api.namespace(path='/', name='Web Monitor', description='Operations related to web_monitor')
 provider_name = 'zabbix'
 
 
 @ns.route('/zabbix/<string:env>/web/new')
+@ns.doc(params={'env': 'This is the possible values to env'})
 class WebMonitorCollection(Resource):
     @api.response(201, "Credential successfully created")
     @api.expect(web_monitor_serializer)
@@ -23,6 +24,8 @@ class WebMonitorCollection(Resource):
 
 
 @ns.route('/zabbix/<string:env>/web/<string:identifier_or_name>')
+@ns.doc(params={'env': 'This is the possible values to env',
+                'identifier_or_name': 'Identifier or name of Database'})
 class WebMonitorItemGet(Resource):
     @auth.login_required()
     def get(self, env, identifier_or_name):
@@ -33,6 +36,8 @@ class WebMonitorItemGet(Resource):
 
 
 @ns.route('/zabbix/<string:env>/web/<string:identifier>')
+@ns.doc(params={'env': 'This is the possible values to env',
+                'identifier': 'Identifier of Database'})
 class WebMonitorItemDelete(Resource):
     @auth.login_required()
     def delete(self, env, identifier):
