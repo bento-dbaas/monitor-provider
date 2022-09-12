@@ -1,0 +1,31 @@
+version: '3'
+networks:
+  mpd:
+    driver: bridge
+services:
+    dev_mongodb:
+        image: mongo:4.2
+        container_name: dev_mongodb_monitor_provider
+        ports:
+            - "27018:27017"
+        networks:
+            - mpd
+
+    app:
+        build: .
+        image: monitor_provider:1.0
+        volumes:
+            - .:/code
+        ports:
+            - "5004:5004"
+        depends_on:
+            - dev_mongodb
+        links:
+            - dev_mongodb
+        environment:
+            - APP_PASSWORD=monitor_dev
+            - APP_USERNAME=monitor_dev
+            - DBAAS_MONGODB_ENDPOINT=mongodb://dev_mongodb_monitor_provider:27017/monitor_provider_dev
+            - MONGODB_DB=monitor_provider_dev
+        networks:
+            - mpd
